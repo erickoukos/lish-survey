@@ -1,0 +1,86 @@
+import { VercelRequest, VercelResponse } from '@vercel/node'
+import { prisma } from '../src/lib/prisma'
+import { verifyToken } from '../src/lib/auth'
+import { handleCors } from '../src/lib/cors'
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Handle CORS
+  if (handleCors(req, res)) return
+
+  // Set CORS headers
+  Object.entries(handleCors(req, res) ? {} : {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }).forEach(([key, value]) => res.setHeader(key, value))
+
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  try {
+    // Check authentication
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+
+    const token = authHeader.substring(7)
+    const payload = verifyToken(token)
+    
+    if (!payload) {
+      return res.status(401).json({ error: 'Invalid token' })
+    }
+
+    // Parse query parameters
+    const page = parseInt(req.query.page as string) || 1
+    const limit = Math.min(parseInt(req.query.limit as string) || 10, 100)
+    const department = req.query.department as string
+    const skip = (page - 1) * limit
+
+    // Build where clause
+    const where: any = {}
+    if (department && department !== 'all') {
+      where.department = department
+    }
+
+    // Get total count
+    const totalCount = await prisma.surveyResponse.count({ where })
+
+    // Get responses with pagination
+    const responses = await prisma.surveyResponse.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    })
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalCount / limit)
+    const hasNextPage = page < totalPages
+    const hasPrevPage = page > 1
+
+    console.log(`Admin ${payload.username} accessed responses: page ${page}, ${responses.length} results`)
+
+    return res.status(200).json({
+      success: true,
+      data: responses,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPrevPage
+      }
+    })
+
+  } catch (error) {
+    console.error('Error fetching responses:', error)
+    
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to fetch responses'
+    })
+  }
+}

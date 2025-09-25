@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SurveyResponse {
+  id                        String   @id @default(uuid())
+  department                String
+  awareness                 Json
+  urgentTrainings          String[]
+  urgentTrainingsOther     String?
+  financeWellnessNeeds     String[]
+  cultureWellnessNeeds     String[]
+  cultureWellnessOther     String?
+  digitalSkillsNeeds       String[]
+  digitalSkillsOther       String?
+  professionalDevNeeds      String[]
+  professionalDevOther      String?
+  confidenceLevel           String
+  facedUnsureSituation      Boolean
+  unsureSituationDescription String?
+  observedIssues            String[]
+  observedIssuesOther        String?
+  knewReportingChannel       String
+  trainingMethod             String
+  trainingMethodOther        String?
+  refresherFrequency         String
+  prioritizedPolicies        String
+  prioritizationReason       String
+  policyChallenges           String
+  complianceSuggestions      String
+  generalComments            String
+  createdAt                  DateTime @default(now()) @map("timestamp")
+
+  @@map("survey_responses")
+}
