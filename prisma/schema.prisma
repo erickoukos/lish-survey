@@ -6,27 +6,27 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model SurveyResponse {
   id                        String   @id @default(uuid())
   department                String
-  awareness                 Json
-  urgentTrainings          String[]
+  awareness                 String   // JSON stored as string for SQLite
+  urgentTrainings          String   // JSON array stored as string
   urgentTrainingsOther     String?
-  financeWellnessNeeds     String[]
-  cultureWellnessNeeds     String[]
+  financeWellnessNeeds     String   // JSON array stored as string
+  cultureWellnessNeeds     String   // JSON array stored as string
   cultureWellnessOther     String?
-  digitalSkillsNeeds       String[]
+  digitalSkillsNeeds       String   // JSON array stored as string
   digitalSkillsOther       String?
-  professionalDevNeeds      String[]
+  professionalDevNeeds      String   // JSON array stored as string
   professionalDevOther      String?
   confidenceLevel           String
   facedUnsureSituation      Boolean
   unsureSituationDescription String?
-  observedIssues            String[]
+  observedIssues            String   // JSON array stored as string
   observedIssuesOther        String?
   knewReportingChannel       String
   trainingMethod             String

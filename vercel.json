@@ -12,20 +12,6 @@
       "dest": "/api/$1"
     }
   ],
-  "functions": {
-    "api/submit.ts": {
-      "maxDuration": 30
-    },
-    "api/responses.ts": {
-      "maxDuration": 30
-    },
-    "api/export.ts": {
-      "maxDuration": 30
-    },
-    "api/login.ts": {
-      "maxDuration": 10
-    }
-  },
   "env": {
     "NODE_ENV": "production"
   }
