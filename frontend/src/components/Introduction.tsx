@@ -8,7 +8,7 @@ const Introduction: React.FC = () => {
           <div className="w-[180px] h-[120px] sm:w-[223px] sm:h-[153px] rounded-lg overflow-hidden shadow-lg">
             <img 
               src="/logo.png" 
-              alt="LISH AI LABS Logo" 
+              alt="LISH AI Logo" 
               className="w-full h-full object-contain"
             />
           </div>
