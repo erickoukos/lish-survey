@@ -64,12 +64,12 @@ const SurveyForm: React.FC = () => {
       cultureWellnessNeeds: [],
       digitalSkillsNeeds: [],
       professionalDevNeeds: [],
-      confidenceLevel: '',
+      confidenceLevel: undefined,
       facedUnsureSituation: false,
       observedIssues: [],
-      knewReportingChannel: '',
-      trainingMethod: '',
-      refresherFrequency: ''
+      knewReportingChannel: undefined,
+      trainingMethod: undefined,
+      refresherFrequency: undefined
     }
   })
 
@@ -407,8 +407,44 @@ const SurveyForm: React.FC = () => {
                       console.log('Form errors:', errors)
                       console.log('Form values:', form.getValues())
                       
-                      // Validate Section J before submitting
+                      // Validate all required fields before submitting
                       const formData = form.getValues()
+                      
+                      // Check if all required fields are filled
+                      const requiredFields = [
+                        'department',
+                        'awareness',
+                        'urgentTrainings',
+                        'confidenceLevel',
+                        'facedUnsureSituation',
+                        'knewReportingChannel',
+                        'trainingMethod',
+                        'refresherFrequency',
+                        'prioritizedPolicies',
+                        'prioritizationReason',
+                        'policyChallenges',
+                        'complianceSuggestions'
+                      ]
+                      
+                      const missingFields = requiredFields.filter(field => {
+                        const value = formData[field as keyof typeof formData]
+                        if (field === 'awareness') {
+                          return !value || Object.values(value).some(v => v === undefined || v === null || v === '')
+                        }
+                        if (field === 'urgentTrainings') {
+                          return !value || (Array.isArray(value) && value.length === 0)
+                        }
+                        return !value || value === '' || value === undefined || value === null
+                      })
+                      
+                      if (missingFields.length > 0) {
+                        toast.error(`Please complete all required fields. Missing: ${missingFields.join(', ')}`)
+                        console.log('Required fields validation failed:', {
+                          missingFields,
+                          formData: formData
+                        })
+                        return
+                      }
                       
                       // Check if Section J fields are filled
                       if (!formData.prioritizedPolicies || formData.prioritizedPolicies.trim() === '' ||
@@ -434,6 +470,25 @@ const SurveyForm: React.FC = () => {
                         antiDiscrimination: formData.awareness?.antiDiscrimination,
                         sexualHarassment: formData.awareness?.sexualHarassment
                       })
+                      
+                      // Debug all form data
+                      console.log('=== FULL FORM DATA DEBUG ===')
+                      console.log('Department:', formData.department)
+                      console.log('Urgent Trainings:', formData.urgentTrainings)
+                      console.log('Finance Wellness Needs:', formData.financeWellnessNeeds)
+                      console.log('Culture Wellness Needs:', formData.cultureWellnessNeeds)
+                      console.log('Digital Skills Needs:', formData.digitalSkillsNeeds)
+                      console.log('Professional Dev Needs:', formData.professionalDevNeeds)
+                      console.log('Confidence Level:', formData.confidenceLevel)
+                      console.log('Faced Unsure Situation:', formData.facedUnsureSituation)
+                      console.log('Knew Reporting Channel:', formData.knewReportingChannel)
+                      console.log('Training Method:', formData.trainingMethod)
+                      console.log('Refresher Frequency:', formData.refresherFrequency)
+                      console.log('Prioritized Policies:', formData.prioritizedPolicies)
+                      console.log('Prioritization Reason:', formData.prioritizationReason)
+                      console.log('Policy Challenges:', formData.policyChallenges)
+                      console.log('Compliance Suggestions:', formData.complianceSuggestions)
+                      console.log('=== END FORM DATA DEBUG ===')
                       
                       // Transform data to ensure correct format
                       const transformedData = {

@@ -93,10 +93,16 @@ app.post('/api/submit', async (req, res) => {
 
   } catch (error) {
     console.error('Error submitting survey response:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown'
+    })
     
     return res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to submit survey response'
+      message: 'Failed to submit survey response',
+      details: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 })
