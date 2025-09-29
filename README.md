@@ -1,4 +1,4 @@
-# LISH AI LABS Policy Survey Backend
+# LISH AI LABS Policy Survey - Production Ready Backend
 
 A comprehensive backend API for the LISH AI LABS Policy Awareness & Training Needs Survey, built with Node.js, TypeScript, Prisma, and PostgreSQL, optimized for Vercel deployment.
 
