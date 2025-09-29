@@ -20,13 +20,18 @@
     },
     {
       "src": "/assets/(.*)",
-      "dest": "/frontend/dist/assets/$1"
+      "dest": "/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/dist/index.html"
+      "dest": "/index.html"
     }
   ],
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
