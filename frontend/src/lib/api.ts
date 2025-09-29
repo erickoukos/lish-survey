@@ -41,6 +41,21 @@ export const surveyApi = {
   submit: async (data: any) => {
     const response = await api.post('/api/submit', data)
     return response.data
+  },
+
+  getSurveyConfig: async () => {
+    const response = await api.get('/api/survey-config')
+    return response.data
+  },
+
+  updateSurveyConfig: async (config: any) => {
+    const response = await api.post('/api/survey-config', config)
+    return response.data
+  },
+
+  resetSurvey: async () => {
+    const response = await api.delete('/api/survey-config')
+    return response.data
   }
 }
 

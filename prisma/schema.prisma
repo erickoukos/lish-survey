@@ -41,3 +41,16 @@ model SurveyResponse {
 
   @@map("survey_responses")
 }
+
+model SurveyConfig {
+  id                String   @id @default(uuid())
+  isActive          Boolean  @default(true)
+  startDate         DateTime
+  endDate           DateTime
+  title             String   @default("Policy Awareness Survey")
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("survey_config")
+}

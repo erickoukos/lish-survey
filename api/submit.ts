@@ -20,6 +20,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Check survey timing
+    const surveyConfig = await prisma.surveyConfig.findFirst({
+      orderBy: { createdAt: 'desc' }
+    })
+
+    if (surveyConfig) {
+      const now = new Date()
+      const startDate = new Date(surveyConfig.startDate)
+      const endDate = new Date(surveyConfig.endDate)
+
+      if (!surveyConfig.isActive) {
+        return res.status(403).json({
+          error: 'Survey is currently inactive',
+          message: 'The survey is not currently accepting responses. Please contact the administrator.'
+        })
+      }
+
+      if (now < startDate) {
+        return res.status(403).json({
+          error: 'Survey has not started yet',
+          message: `The survey will start on ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString()}.`
+        })
+      }
+
+      if (now > endDate) {
+        return res.status(403).json({
+          error: 'Survey has ended',
+          message: `The survey ended on ${endDate.toLocaleDateString()} at ${endDate.toLocaleTimeString()}.`
+        })
+      }
+    }
+
     // Rate limiting
     const clientIP = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown'
     const rateLimitPassed = await checkRateLimit(`submit:${clientIP}`)

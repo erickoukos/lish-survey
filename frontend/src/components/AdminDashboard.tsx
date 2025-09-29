@@ -6,10 +6,11 @@ import toast from 'react-hot-toast'
 import { Download, Filter, Search, BarChart3, Users, TrendingUp } from 'lucide-react'
 import ResponsesTable from './admin/ResponsesTable'
 import AnalyticsDashboard from './admin/AnalyticsDashboard'
+import SurveyConfig from './admin/SurveyConfig'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -72,6 +73,13 @@ const AdminDashboard: React.FC = () => {
             Analytics
           </button>
           <button
+            onClick={() => setCurrentView('config')}
+            className={`btn ${currentView === 'config' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Configuration
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary px-4 py-2"
           >
@@ -131,6 +139,10 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'analytics' && (
         <AnalyticsDashboard />
+      )}
+
+      {currentView === 'config' && (
+        <SurveyConfig />
       )}
     </div>
   )
