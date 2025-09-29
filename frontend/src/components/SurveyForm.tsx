@@ -434,6 +434,9 @@ const SurveyForm: React.FC = () => {
                         if (field === 'urgentTrainings') {
                           return !value || (Array.isArray(value) && value.length === 0)
                         }
+                        if (field === 'facedUnsureSituation') {
+                          return !value || value === '' || value === undefined || value === null
+                        }
                         return !value || value === '' || value === undefined || value === null
                       })
                       
@@ -511,7 +514,8 @@ const SurveyForm: React.FC = () => {
                         cultureWellnessNeeds: formData.cultureWellnessNeeds || [],
                         digitalSkillsNeeds: formData.digitalSkillsNeeds || [],
                         professionalDevNeeds: formData.professionalDevNeeds || [],
-                        observedIssues: formData.observedIssues || []
+                        observedIssues: formData.observedIssues || [],
+                        facedUnsureSituation: formData.facedUnsureSituation === 'true'
                       }
                       
                       console.log('Transformed data:', transformedData)

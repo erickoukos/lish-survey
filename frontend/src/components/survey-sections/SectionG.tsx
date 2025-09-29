@@ -123,9 +123,8 @@ const SectionG: React.FC<SectionGProps> = ({ form }) => {
           <label className="flex items-center space-x-3 p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 cursor-pointer">
             <input
               type="radio"
-              name="facedUnsureSituation"
-              checked={facedUnsureSituation === true}
-              onChange={() => setValue('facedUnsureSituation', true)}
+              value="true"
+              {...register('facedUnsureSituation', { required: 'Please select an option' })}
               className="w-4 h-4 text-primary-600 border-secondary-300 focus:ring-primary-500"
             />
             <span className="text-sm text-secondary-700">Yes</span>
@@ -133,23 +132,22 @@ const SectionG: React.FC<SectionGProps> = ({ form }) => {
           <label className="flex items-center space-x-3 p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 cursor-pointer">
             <input
               type="radio"
-              name="facedUnsureSituation"
-              checked={facedUnsureSituation === false}
-              onChange={() => setValue('facedUnsureSituation', false)}
+              value="false"
+              {...register('facedUnsureSituation', { required: 'Please select an option' })}
               className="w-4 h-4 text-primary-600 border-secondary-300 focus:ring-primary-500"
             />
             <span className="text-sm text-secondary-700">No</span>
           </label>
         </div>
         
-        {facedUnsureSituation === true && (
+        {facedUnsureSituation === 'true' && (
           <div className="mt-4">
             <label className="form-label block mb-2">
               Please describe the situation: <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('unsureSituationDescription', { 
-                required: facedUnsureSituation === true ? 'Please describe the situation' : false 
+                required: facedUnsureSituation === 'true' ? 'Please describe the situation' : false 
               })}
               rows={4}
               placeholder="Describe the situation where you were unsure about the right policy to apply"
