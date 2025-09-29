@@ -1,0 +1,26 @@
+# Vercel Environment Variables
+# Copy these to your Vercel project settings
+
+# Database URL (Use the pooled connection for better performance)
+DATABASE_URL=postgresql://neondb_owner:npg_5Uf8wLsuIkFX@ep-odd-mountain-abu9qwk9-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require
+
+# JWT Secret (Generated secure key)
+JWT_SECRET=f8d5acdf84771e85f4467c6784684a47dc0952fd1fd924db9eb2f26575e887de1075b9ec2207972cec11c4b9cbe74542e894915dddad5da9c37319c7f96974cd
+
+# Admin Credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=lish2025
+
+# CORS Origins (Your Vercel domain)
+CORS_ORIGINS=https://lish-survey-qx465upyt-lish-ai-labs.vercel.app
+
+# Environment
+NODE_ENV=production
+
+# Optional: Additional database variables (if needed)
+POSTGRES_URL=postgresql://neondb_owner:npg_5Uf8wLsuIkFX@ep-odd-mountain-abu9qwk9-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require
+POSTGRES_URL_NON_POOLING=postgresql://neondb_owner:npg_5Uf8wLsuIkFX@ep-odd-mountain-abu9qwk9.eu-west-2.aws.neon.tech/neondb?sslmode=require
+POSTGRES_USER=neondb_owner
+POSTGRES_HOST=ep-odd-mountain-abu9qwk9-pooler.eu-west-2.aws.neon.tech
+POSTGRES_PASSWORD=npg_5Uf8wLsuIkFX
+POSTGRES_DATABASE=neondb
