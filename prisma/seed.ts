@@ -9,7 +9,7 @@ async function main() {
   const sampleResponses = [
     {
       department: 'Technical Team',
-      awareness: {
+      awareness: JSON.stringify({
         antiSocialBehavior: 4,
         antiDiscrimination: 5,
         sexualHarassment: 3,
@@ -21,16 +21,16 @@ async function main() {
         digitalWorkplace: 5,
         softSkills: 3,
         professionalism: 4
-      },
-      urgentTrainings: ['Anti-Social Behavior Policy', 'HR Policy Manual'],
-      financeWellnessNeeds: ['Financial Literacy Basics – Saving, spending, and tracking money smartly'],
-      cultureWellnessNeeds: ['Stress management strategies for high-paced digital environments'],
-      digitalSkillsNeeds: ['Cybersecurity Awareness'],
-      professionalDevNeeds: ['Effective Communication'],
+      }),
+      urgentTrainings: JSON.stringify(['Anti-Social Behavior Policy', 'HR Policy Manual']),
+      financeWellnessNeeds: JSON.stringify(['Financial Literacy Basics – Saving, spending, and tracking money smartly']),
+      cultureWellnessNeeds: JSON.stringify(['Stress management strategies for high-paced digital environments']),
+      digitalSkillsNeeds: JSON.stringify(['Cybersecurity Awareness']),
+      professionalDevNeeds: JSON.stringify(['Effective Communication']),
       confidenceLevel: 'Confident',
       facedUnsureSituation: true,
       unsureSituationDescription: 'Not sure about reporting procedures',
-      observedIssues: ['None of the above'],
+      observedIssues: JSON.stringify(['None of the above']),
       knewReportingChannel: 'Yes',
       trainingMethod: 'In-person training sessions',
       refresherFrequency: '1 training /Monthly',
@@ -42,7 +42,7 @@ async function main() {
     },
     {
       department: 'HR & Administration Department',
-      awareness: {
+      awareness: JSON.stringify({
         antiSocialBehavior: 5,
         antiDiscrimination: 5,
         sexualHarassment: 5,
@@ -54,15 +54,15 @@ async function main() {
         digitalWorkplace: 4,
         softSkills: 5,
         professionalism: 5
-      },
-      urgentTrainings: ['Finance & Financial Wellness'],
-      financeWellnessNeeds: ['Investment & Savings Options – youth-friendly investment paths like SACCOs, money markets, and digital assets'],
-      cultureWellnessNeeds: ['Resilience & Adaptability Training'],
-      digitalSkillsNeeds: ['Responsible AI & Ethical Tech Use'],
-      professionalDevNeeds: ['Leadership Skills for Young Professionals'],
+      }),
+      urgentTrainings: JSON.stringify(['Finance & Financial Wellness']),
+      financeWellnessNeeds: JSON.stringify(['Investment & Savings Options – youth-friendly investment paths like SACCOs, money markets, and digital assets']),
+      cultureWellnessNeeds: JSON.stringify(['Resilience & Adaptability Training']),
+      digitalSkillsNeeds: JSON.stringify(['Responsible AI & Ethical Tech Use']),
+      professionalDevNeeds: JSON.stringify(['Leadership Skills for Young Professionals']),
       confidenceLevel: 'Very confident',
       facedUnsureSituation: false,
-      observedIssues: ['None of the above'],
+      observedIssues: JSON.stringify(['None of the above']),
       knewReportingChannel: 'Yes',
       trainingMethod: 'Self-paced e-learning modules',
       refresherFrequency: '2 trainings /Month',
