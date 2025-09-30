@@ -358,20 +358,21 @@ const SurveyForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-secondary-900 mb-2 sm:mb-4">
-          LISH AI LABS Policy Survey
-        </h1>
-        <p className="text-base sm:text-lg text-secondary-600">
-          Policy Awareness & Training Needs Assessment
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div className="text-center mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary-900 mb-2 sm:mb-3">
+            LISH AI LABS Policy Survey
+          </h1>
+          <p className="text-sm sm:text-base text-secondary-600">
+            Policy Awareness & Training Needs Assessment
+          </p>
+        </div>
 
-      <ProgressBar current={currentSection} total={totalSections} />
+        <ProgressBar current={currentSection} total={totalSections} />
 
-      <div className="card mt-6 sm:mt-8">
-        <div className="card-content p-4 sm:p-6">
+        <div className="card mt-4 sm:mt-6">
+          <div className="card-content p-3 sm:p-4 lg:p-6">
           <form onSubmit={(e) => {
             console.log('Form submit event triggered')
             e.preventDefault()
@@ -379,17 +380,17 @@ const SurveyForm: React.FC = () => {
           }}>
             {renderSection()}
             
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-secondary-200">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-secondary-200">
               <button
                 type="button"
                 onClick={prevSection}
                 disabled={currentSection === 0}
-                className="btn-outline px-4 sm:px-6 py-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-outline px-4 sm:px-6 py-3 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Previous
               </button>
               
-              <div className="flex w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 sm:gap-4">
                 {currentSection < totalSections - 1 ? (
                   <button
                     type="button"
@@ -525,6 +526,7 @@ const SurveyForm: React.FC = () => {
                       setIsSubmitting(true)
                       try {
                         console.log('Submitting to API...')
+                        console.log('API Base URL:', import.meta.env.VITE_API_URL || 'https://lish-survey-kv379w9h1-lish-ai-labs.vercel.app')
                         const result = await surveyApi.submit(transformedData)
                         console.log('API response:', result)
                         toast.success('Survey submitted successfully!')
@@ -534,14 +536,26 @@ const SurveyForm: React.FC = () => {
                         console.error('Error details:', {
                           message: error.message,
                           response: error.response?.data,
-                          status: error.response?.status
+                          status: error.response?.status,
+                          code: error.code
                         })
-                        toast.error(error.response?.data?.message || 'Failed to submit survey. Please try again.')
+                        
+                        let errorMessage = 'Failed to submit survey. Please try again.'
+                        
+                        if (error.code === 'ERR_NETWORK') {
+                          errorMessage = 'Network error. Please check your connection and try again.'
+                        } else if (error.response?.status === 500) {
+                          errorMessage = 'Server error. Please try again later.'
+                        } else if (error.response?.data?.message) {
+                          errorMessage = error.response.data.message
+                        }
+                        
+                        toast.error(errorMessage)
                       } finally {
                         setIsSubmitting(false)
                       }
                     }}
-                    className="btn-primary px-6 sm:px-8 py-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary px-4 sm:px-6 py-3 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Survey'}
                   </button>
@@ -551,6 +565,7 @@ const SurveyForm: React.FC = () => {
           </form>
         </div>
       </div>
+    </div>
     </div>
   )
 }

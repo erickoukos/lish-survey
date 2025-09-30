@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://lish-survey-rc7g10ee1-lish-ai-labs.vercel.app'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://lish-survey-blikm0uhz-lish-ai-labs.vercel.app'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
