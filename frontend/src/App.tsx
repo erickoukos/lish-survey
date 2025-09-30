@@ -21,7 +21,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/thank-you" element={<ThankYou />} />
               <Route
-                path="/admin"
+                path="/emp-surv"
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />

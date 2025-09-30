@@ -25,7 +25,7 @@ const Login: React.FC = () => {
       await login(data.username, data.password)
       console.log('Login successful, navigating to admin...')
       toast.success('Login successful!')
-      navigate('/admin')
+      navigate('/emp-surv')
     } catch (error: any) {
       console.error('Login error:', error)
       console.error('Error details:', {
