@@ -539,6 +539,9 @@ const SurveyForm: React.FC = () => {
                         'department',
                         'awareness',
                         'urgentTrainings',
+                        'financeWellnessNeeds',
+                        'cultureWellnessNeeds',
+                        'digitalSkillsNeeds',
                         'confidenceLevel',
                         'facedUnsureSituation',
                         'knewReportingChannel',
@@ -555,7 +558,8 @@ const SurveyForm: React.FC = () => {
                         if (field === 'awareness') {
                           return !value || Object.values(value).some(v => v === undefined || v === null || v === '')
                         }
-                        if (field === 'urgentTrainings' || field === 'prioritizedPolicies' || field === 'policyChallenges') {
+                        if (field === 'urgentTrainings' || field === 'prioritizedPolicies' || field === 'policyChallenges' || 
+                            field === 'financeWellnessNeeds' || field === 'cultureWellnessNeeds' || field === 'digitalSkillsNeeds') {
                           return !value || (Array.isArray(value) && value.length === 0)
                         }
                         if (field === 'facedUnsureSituation') {
@@ -639,7 +643,9 @@ const SurveyForm: React.FC = () => {
                         digitalSkillsNeeds: formData.digitalSkillsNeeds || [],
                         professionalDevNeeds: formData.professionalDevNeeds || [],
                         observedIssues: formData.observedIssues || [],
-                        facedUnsureSituation: formData.facedUnsureSituation === 'true'
+                        prioritizedPolicies: JSON.stringify(formData.prioritizedPolicies || []),
+                        policyChallenges: JSON.stringify(formData.policyChallenges || []),
+                        facedUnsureSituation: Boolean(formData.facedUnsureSituation)
                       }
                       
                       console.log('Transformed data:', transformedData)

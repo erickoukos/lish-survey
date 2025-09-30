@@ -124,7 +124,10 @@ const SectionG: React.FC<SectionGProps> = ({ form }) => {
             <input
               type="radio"
               value="true"
-              {...register('facedUnsureSituation', { required: 'Please select an option' })}
+              {...register('facedUnsureSituation', { 
+                required: 'Please select an option',
+                setValueAs: (value) => value === 'true'
+              })}
               className="w-4 h-4 text-primary-600 border-secondary-300 focus:ring-primary-500"
             />
             <span className="text-sm text-secondary-700">Yes</span>
@@ -133,21 +136,24 @@ const SectionG: React.FC<SectionGProps> = ({ form }) => {
             <input
               type="radio"
               value="false"
-              {...register('facedUnsureSituation', { required: 'Please select an option' })}
+              {...register('facedUnsureSituation', { 
+                required: 'Please select an option',
+                setValueAs: (value) => value === 'true'
+              })}
               className="w-4 h-4 text-primary-600 border-secondary-300 focus:ring-primary-500"
             />
             <span className="text-sm text-secondary-700">No</span>
           </label>
         </div>
         
-        {facedUnsureSituation === 'true' && (
+        {facedUnsureSituation === true && (
           <div className="mt-4">
             <label className="form-label block mb-2">
               Please describe the situation: <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('unsureSituationDescription', { 
-                required: facedUnsureSituation === 'true' ? 'Please describe the situation' : false 
+                required: facedUnsureSituation === true ? 'Please describe the situation' : false 
               })}
               rows={4}
               placeholder="Describe the situation where you were unsure about the right policy to apply"
