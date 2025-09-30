@@ -132,7 +132,8 @@ export const policyChallengesEnum = z.enum([
   'No clear consequences for non-compliance',
   'Cultural or language barriers',
   'Time constraints for reading policies',
-  'Lack of practical application guidance'
+  'Lack of practical application guidance',
+  'Others'
 ])
 
 export const surveyFormSchema = z.object({
