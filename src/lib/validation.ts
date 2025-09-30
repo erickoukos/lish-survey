@@ -129,9 +129,9 @@ export const surveyResponseSchema = z.object({
   trainingMethod: trainingMethodEnum,
   trainingMethodOther: z.string().optional(),
   refresherFrequency: refresherFrequencyEnum,
-  prioritizedPolicies: z.string().optional(),
-  prioritizationReason: z.string().optional(),
-  policyChallenges: z.string().optional(),
+  prioritizedPolicies: z.array(z.string()).min(1),
+  prioritizationReason: z.string().min(1),
+  policyChallenges: z.array(z.string()).min(1),
   complianceSuggestions: z.string().optional(),
   generalComments: z.string().optional()
 })

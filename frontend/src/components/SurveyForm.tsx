@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { surveyFormSchema, SurveyFormData } from '../lib/validation'
 import { surveyApi } from '../lib/api'
+import { useFormPersistence } from '../hooks/useFormPersistence'
 import ProgressBar from './ProgressBar'
 import Introduction from './Introduction'
 import SurveyUnavailable from './SurveyUnavailable'
@@ -126,9 +127,17 @@ const SurveyForm: React.FC = () => {
       observedIssues: [],
       knewReportingChannel: undefined,
       trainingMethod: undefined,
-      refresherFrequency: undefined
+      refresherFrequency: undefined,
+      prioritizedPolicies: [],
+      prioritizationReason: '',
+      policyChallenges: [],
+      complianceSuggestions: '',
+      generalComments: ''
     }
   })
+
+  // Use form persistence hook
+  const { clearFormData } = useFormPersistence(form, currentSection, setCurrentSection)
 
   const { watch, handleSubmit, formState: { errors } } = form
   const watchedValues = watch()
@@ -143,6 +152,10 @@ const SurveyForm: React.FC = () => {
       console.log('Submitting to API...')
       const result = await surveyApi.submit(data)
       console.log('API response:', result)
+      
+      // Clear form data from localStorage after successful submission
+      clearFormData()
+      
       toast.success('Survey submitted successfully!')
       navigate('/thank-you')
     } catch (error: any) {
