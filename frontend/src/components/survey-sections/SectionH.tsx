@@ -10,11 +10,15 @@ const SectionH: React.FC<SectionHProps> = ({ form }) => {
   const { register, watch, setValue, formState: { errors } } = form
   const observedIssues = watch('observedIssues') || []
 
-  const issueOptions = [
+  const specificIssues = [
     'Anti-social behavior (e.g., verbal abuse, public disorder)',
     'Discrimination (e.g., gender, race, disability bias)',
     'Harassment (verbal, physical, sexual, cyber)',
-    'Lack of safeguarding for vulnerable persons (Women, PWDs, Senior Citizens)',
+    'Lack of safeguarding for vulnerable persons (Women, PWDs, Senior Citizens)'
+  ]
+
+  const issueOptions = [
+    ...specificIssues,
     'None of the above'
   ]
 
@@ -25,11 +29,27 @@ const SectionH: React.FC<SectionHProps> = ({ form }) => {
   ]
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
+    let newIssues = [...observedIssues]
+
     if (checked) {
-      setValue('observedIssues', [...observedIssues, option])
+      if (option === 'None of the above') {
+        // If "None of the above" is selected, remove all specific issues but keep "Others"
+        newIssues = newIssues.filter(item => !specificIssues.includes(item))
+        newIssues.push('None of the above')
+      } else if (specificIssues.includes(option)) {
+        // If a specific issue is selected, remove "None of the above" but keep "Others"
+        newIssues = newIssues.filter(item => item !== 'None of the above')
+        newIssues.push(option)
+      } else if (option === 'Others') {
+        // "Others" can be selected with any other option
+        newIssues.push('Others')
+      }
     } else {
-      setValue('observedIssues', observedIssues.filter(item => item !== option))
+      // Remove the option
+      newIssues = newIssues.filter(item => item !== option)
     }
+
+    setValue('observedIssues', newIssues)
   }
 
   return (
