@@ -11,8 +11,8 @@ JWT_SECRET=f8d5acdf84771e85f4467c6784684a47dc0952fd1fd924db9eb2f26575e887de1075b
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=lish2025
 
-# CORS Origins (Your Vercel domain)
-CORS_ORIGINS=https://lish-survey-qx465upyt-lish-ai-labs.vercel.app
+# CORS Origins (Your Vercel domain - Update with your actual domain)
+CORS_ORIGINS=https://your-project-name.vercel.app,https://your-custom-domain.com
 
 # Environment
 NODE_ENV=production
