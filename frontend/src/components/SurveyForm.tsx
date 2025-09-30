@@ -182,6 +182,12 @@ const SurveyForm: React.FC = () => {
         response: error.response?.data,
         status: error.response?.status
       })
+      
+      // Log detailed validation errors
+      if (error.response?.data?.details) {
+        console.error('Validation errors:', error.response.data.details)
+      }
+      
       toast.error(error.response?.data?.message || 'Failed to submit survey. Please try again.')
     } finally {
       setIsSubmitting(false)

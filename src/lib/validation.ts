@@ -132,7 +132,7 @@ export const surveyResponseSchema = z.object({
   prioritizedPolicies: z.array(z.string()).min(1),
   prioritizationReason: z.string().min(1),
   policyChallenges: z.array(z.string()).min(1),
-  complianceSuggestions: z.string().optional(),
+  complianceSuggestions: z.string().min(1),
   generalComments: z.string().optional()
 })
 
