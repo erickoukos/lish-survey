@@ -147,16 +147,10 @@ const SurveyForm: React.FC = () => {
     console.log('Form errors:', errors)
     console.log('Form is valid:', Object.keys(errors).length === 0)
     
-    // Transform awareness object to match backend schema
-    const transformedAwareness = Object.entries(data.awareness).map(([key, value]) => ({
-      policy: key,
-      awarenessLevel: value
-    }))
-
     // Prepare data for submission - send arrays as arrays, not strings
     const dataToSend = {
       ...data,
-      awareness: transformedAwareness, // Array of objects
+      awareness: data.awareness, // Keep as object (not array)
       urgentTrainings: data.urgentTrainings?.filter(Boolean) || [],
       financeWellnessNeeds: data.financeWellnessNeeds?.filter(Boolean) || [],
       cultureWellnessNeeds: data.cultureWellnessNeeds?.filter(Boolean) || [],
