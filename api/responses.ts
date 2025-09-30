@@ -38,49 +38,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const department = req.query.department as string
     const skip = (page - 1) * limit
 
-    // Build where clause
-    const where: any = {}
-    if (department && department !== 'all') {
-      where.department = department
+    try {
+      // Build where clause
+      const where: any = {}
+      if (department && department !== 'all') {
+        where.department = department
+      }
+
+      // Get total count
+      const totalCount = await prisma.surveyResponse.count({ where })
+
+      // Get responses with pagination
+      const responses = await prisma.surveyResponse.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      })
+
+      // Calculate pagination info
+      const totalPages = Math.ceil(totalCount / limit)
+      const hasNextPage = page < totalPages
+      const hasPrevPage = page > 1
+
+      console.log(`Admin ${payload.username} accessed responses: page ${page}, ${responses.length} results`)
+
+      return res.status(200).json({
+        success: true,
+        data: responses,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNextPage,
+          hasPrevPage
+        }
+      })
+    } catch (dbError) {
+      console.error('Database error in responses API:', dbError)
+      
+      // Return empty response if database is not available
+      return res.status(200).json({
+        success: true,
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          totalCount: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false
+        },
+        warning: 'Database not available - no responses to display'
+      })
     }
 
-    // Get total count
-    const totalCount = await prisma.surveyResponse.count({ where })
-
-    // Get responses with pagination
-    const responses = await prisma.surveyResponse.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit
-    })
-
-    // Calculate pagination info
-    const totalPages = Math.ceil(totalCount / limit)
-    const hasNextPage = page < totalPages
-    const hasPrevPage = page > 1
-
-    console.log(`Admin ${payload.username} accessed responses: page ${page}, ${responses.length} results`)
-
-    return res.status(200).json({
-      success: true,
-      data: responses,
-      pagination: {
-        page,
-        limit,
-        totalCount,
-        totalPages,
-        hasNextPage,
-        hasPrevPage
-      }
-    })
-
   } catch (error) {
-    console.error('Error fetching responses:', error)
+    console.error('Error in responses API:', error)
     
     return res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to fetch responses'
+      message: 'Failed to process responses request'
     })
   }
 }

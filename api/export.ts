@@ -34,9 +34,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get all responses
-    const responses = await prisma.surveyResponse.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    let responses = []
+    try {
+      responses = await prisma.surveyResponse.findMany({
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (dbError) {
+      console.error('Database error in export API:', dbError)
+      return res.status(200).json({
+        error: 'Database not available',
+        message: 'Cannot export responses - database not available'
+      })
+    }
 
     // Transform data for CSV
     const csvData = responses.map(response => {
