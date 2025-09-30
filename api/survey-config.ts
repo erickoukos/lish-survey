@@ -23,33 +23,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     if (req.method === 'GET') {
-      // Get current survey configuration
-      const config = await prisma.surveyConfig.findFirst({
-        orderBy: { createdAt: 'desc' }
-      })
-
-      if (!config) {
-        // Create default configuration if none exists
-        const defaultConfig = await prisma.surveyConfig.create({
-          data: {
-            isActive: true,
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-            title: 'Policy Awareness Survey',
-            description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
-          }
+      try {
+        // Get current survey configuration
+        const config = await prisma.surveyConfig.findFirst({
+          orderBy: { createdAt: 'desc' }
         })
+
+        if (!config) {
+          // Create default configuration if none exists
+          const defaultConfig = await prisma.surveyConfig.create({
+            data: {
+              isActive: true,
+              startDate: new Date(),
+              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+              title: 'Policy Awareness Survey',
+              description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+            }
+          })
+
+          return res.status(200).json({
+            success: true,
+            config: defaultConfig
+          })
+        }
 
         return res.status(200).json({
           success: true,
-          config: defaultConfig
+          config
+        })
+      } catch (dbError) {
+        console.error('Database error in survey-config GET:', dbError)
+        
+        // Return default configuration if database is not available
+        const defaultConfig = {
+          id: 'default',
+          isActive: true,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          title: 'Policy Awareness Survey',
+          description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+
+        return res.status(200).json({
+          success: true,
+          config: defaultConfig,
+          warning: 'Using default configuration - database not available'
         })
       }
-
-      return res.status(200).json({
-        success: true,
-        config
-      })
     }
 
     if (req.method === 'POST' || req.method === 'PUT') {
@@ -75,33 +97,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const data = validationResult.data
 
-      // Update or create configuration
-      const config = await prisma.surveyConfig.upsert({
-        where: { id: 'default' },
-        update: {
-          isActive: data.isActive,
-          startDate: new Date(data.startDate),
-          endDate: new Date(data.endDate),
-          title: data.title || 'Policy Awareness Survey',
-          description: data.description
-        },
-        create: {
-          id: 'default',
-          isActive: data.isActive,
-          startDate: new Date(data.startDate),
-          endDate: new Date(data.endDate),
-          title: data.title || 'Policy Awareness Survey',
-          description: data.description
-        }
-      })
+      try {
+        // Update or create configuration
+        const config = await prisma.surveyConfig.upsert({
+          where: { id: 'default' },
+          update: {
+            isActive: data.isActive,
+            startDate: new Date(data.startDate),
+            endDate: new Date(data.endDate),
+            title: data.title || 'Policy Awareness Survey',
+            description: data.description
+          },
+          create: {
+            id: 'default',
+            isActive: data.isActive,
+            startDate: new Date(data.startDate),
+            endDate: new Date(data.endDate),
+            title: data.title || 'Policy Awareness Survey',
+            description: data.description
+          }
+        })
 
-      console.log(`Survey configuration updated by admin ${payload.username}`)
+        console.log(`Survey configuration updated by admin ${payload.username}`)
 
-      return res.status(200).json({
-        success: true,
-        config,
-        message: 'Survey configuration updated successfully'
-      })
+        return res.status(200).json({
+          success: true,
+          config,
+          message: 'Survey configuration updated successfully'
+        })
+      } catch (dbError) {
+        console.error('Database error in survey-config POST/PUT:', dbError)
+        return res.status(500).json({
+          error: 'Database unavailable',
+          message: 'Cannot update configuration - database not available'
+        })
+      }
     }
 
     if (req.method === 'DELETE') {
