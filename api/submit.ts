@@ -73,10 +73,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
+    // Log the received data for debugging
+    console.log('Received survey data:', JSON.stringify(req.body, null, 2))
+    
     // Validate request body
     const validationResult = surveyResponseSchema.safeParse(req.body)
     
     if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.errors)
       return res.status(400).json({
         error: 'Invalid request data',
         details: validationResult.error.errors

@@ -108,6 +108,34 @@ export const refresherFrequencyEnum = z.enum([
   '2 trainings /Month'
 ])
 
+export const prioritizedPoliciesEnum = z.enum([
+  'Anti-Social Behavior Policy',
+  'Anti-Discrimination Policy',
+  'Sexual and Other forms of harassment Policy',
+  'Safeguarding Policy',
+  'HR Policy Manual',
+  'Code of Conduct',
+  'Finance & Financial Wellness',
+  'Work-Life Balance & Mental Health Awareness',
+  'Digital Workplace & Skills',
+  'Soft Skills',
+  'Professionalism & Ethics'
+])
+
+export const policyChallengesEnum = z.enum([
+  'Complex language and terminology',
+  'Lack of clear examples or scenarios',
+  'Insufficient training or orientation',
+  'Conflicting information from different sources',
+  'Policies not easily accessible',
+  'Lack of regular updates or communication',
+  'No clear consequences for non-compliance',
+  'Cultural or language barriers',
+  'Time constraints for reading policies',
+  'Lack of practical application guidance',
+  'Others'
+])
+
 export const surveyResponseSchema = z.object({
   department: departmentEnum,
   awareness: awarenessSchema,
@@ -129,9 +157,9 @@ export const surveyResponseSchema = z.object({
   trainingMethod: trainingMethodEnum,
   trainingMethodOther: z.string().optional(),
   refresherFrequency: refresherFrequencyEnum,
-  prioritizedPolicies: z.array(z.string()).min(1),
+  prioritizedPolicies: z.array(prioritizedPoliciesEnum).min(1),
   prioritizationReason: z.string().min(1),
-  policyChallenges: z.array(z.string()).min(1),
+  policyChallenges: z.array(policyChallengesEnum).min(1),
   complianceSuggestions: z.string().min(1),
   generalComments: z.string().optional()
 })
