@@ -83,9 +83,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         training_method: response.trainingMethod,
         training_method_other: response.trainingMethodOther || '',
         refresher_frequency: response.refresherFrequency,
-        prioritized_policies: response.prioritizedPolicies || '',
+        prioritized_policies: JSON.parse(response.prioritizedPolicies || '[]').join('; '),
         prioritization_reason: response.prioritizationReason || '',
-        policy_challenges: response.policyChallenges || '',
+        policy_challenges: JSON.parse(response.policyChallenges || '[]').join('; '),
+        policy_challenges_other: response.policyChallengesOther || '',
         compliance_suggestions: response.complianceSuggestions || '',
         general_comments: response.generalComments || ''
       }
@@ -130,6 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         { id: 'prioritized_policies', title: 'Prioritized Policies' },
         { id: 'prioritization_reason', title: 'Prioritization Reason' },
         { id: 'policy_challenges', title: 'Policy Challenges' },
+        { id: 'policy_challenges_other', title: 'Policy Challenges Other' },
         { id: 'compliance_suggestions', title: 'Compliance Suggestions' },
         { id: 'general_comments', title: 'General Comments' }
       ]

@@ -108,6 +108,33 @@ export const refresherFrequencyEnum = z.enum([
   '2 trainings /Month'
 ])
 
+export const prioritizedPoliciesEnum = z.enum([
+  'Anti-Social Behavior Policy',
+  'Anti-Discrimination Policy',
+  'Sexual and Other forms of harassment Policy',
+  'Safeguarding Policy',
+  'HR Policy Manual',
+  'Code of Conduct',
+  'Finance & Financial Wellness',
+  'Work-Life Balance & Mental Health Awareness',
+  'Digital Workplace & Skills',
+  'Soft Skills',
+  'Professionalism & Ethics'
+])
+
+export const policyChallengesEnum = z.enum([
+  'Complex language and terminology',
+  'Lack of clear examples or scenarios',
+  'Insufficient training or orientation',
+  'Conflicting information from different sources',
+  'Policies not easily accessible',
+  'Lack of regular updates or communication',
+  'No clear consequences for non-compliance',
+  'Cultural or language barriers',
+  'Time constraints for reading policies',
+  'Lack of practical application guidance'
+])
+
 export const surveyFormSchema = z.object({
   department: departmentEnum,
   awareness: awarenessSchema,
@@ -129,10 +156,11 @@ export const surveyFormSchema = z.object({
   trainingMethod: trainingMethodEnum,
   trainingMethodOther: z.string().optional(),
   refresherFrequency: refresherFrequencyEnum,
-  prioritizedPolicies: z.string().optional(),
-  prioritizationReason: z.string().optional(),
-  policyChallenges: z.string().optional(),
-  complianceSuggestions: z.string().optional(),
+  prioritizedPolicies: z.array(prioritizedPoliciesEnum).min(1, 'Please select at least one policy to prioritize'),
+  prioritizationReason: z.string().min(1, 'Please explain why these policies should be prioritized'),
+  policyChallenges: z.array(policyChallengesEnum).min(1, 'Please select at least one challenge'),
+  policyChallengesOther: z.string().optional(),
+  complianceSuggestions: z.string().min(1, 'Please share your suggestions for improvement'),
   generalComments: z.string().optional()
 })
 
@@ -159,9 +187,10 @@ export const createSectionSchema = (section: number) => {
     trainingMethod: trainingMethodEnum.optional(),
     trainingMethodOther: z.string().optional(),
     refresherFrequency: refresherFrequencyEnum.optional(),
-    prioritizedPolicies: z.string().optional(),
+    prioritizedPolicies: z.array(prioritizedPoliciesEnum).optional(),
     prioritizationReason: z.string().optional(),
-    policyChallenges: z.string().optional(),
+    policyChallenges: z.array(policyChallengesEnum).optional(),
+    policyChallengesOther: z.string().optional(),
     complianceSuggestions: z.string().optional(),
     generalComments: z.string().optional()
   })
@@ -194,8 +223,10 @@ export const createSectionSchema = (section: number) => {
       })
     case 10: // Section J
       return baseSchema.extend({
-        trainingMethod: trainingMethodEnum,
-        refresherFrequency: refresherFrequencyEnum
+        prioritizedPolicies: z.array(prioritizedPoliciesEnum).min(1, 'Please select at least one policy to prioritize'),
+        prioritizationReason: z.string().min(1, 'Please explain why these policies should be prioritized'),
+        policyChallenges: z.array(policyChallengesEnum).min(1, 'Please select at least one challenge'),
+        complianceSuggestions: z.string().min(1, 'Please share your suggestions for improvement')
       })
     default:
       return baseSchema

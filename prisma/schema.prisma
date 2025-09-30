@@ -32,9 +32,10 @@ model SurveyResponse {
   trainingMethod             String
   trainingMethodOther        String?
   refresherFrequency         String
-  prioritizedPolicies        String
+  prioritizedPolicies        String   // JSON array stored as string
   prioritizationReason       String
-  policyChallenges           String
+  policyChallenges           String   // JSON array stored as string
+  policyChallengesOther      String?
   complianceSuggestions      String
   generalComments            String
   createdAt                  DateTime @default(now()) @map("timestamp")

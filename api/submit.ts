@@ -109,9 +109,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           trainingMethod: data.trainingMethod,
           trainingMethodOther: data.trainingMethodOther,
           refresherFrequency: data.refresherFrequency,
-          prioritizedPolicies: data.prioritizedPolicies || '',
+          prioritizedPolicies: JSON.stringify(data.prioritizedPolicies || []),
           prioritizationReason: data.prioritizationReason || '',
-          policyChallenges: data.policyChallenges || '',
+          policyChallenges: JSON.stringify(data.policyChallenges || []),
+          policyChallengesOther: data.policyChallengesOther || '',
           complianceSuggestions: data.complianceSuggestions || '',
           generalComments: data.generalComments || ''
         }
