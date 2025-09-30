@@ -21,6 +21,26 @@ const SurveyConfig: React.FC = () => {
   const [resetting, setResetting] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
+  // Helper function to convert date to datetime-local format
+  const toDateTimeLocal = (dateString: string) => {
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    const result = `${year}-${month}-${day}T${hours}:${minutes}`
+    console.log('Converting ISO:', dateString, 'to datetime-local:', result)
+    return result
+  }
+
+  // Helper function to convert datetime-local to ISO string
+  const fromDateTimeLocal = (dateTimeLocal: string) => {
+    const date = new Date(dateTimeLocal)
+    console.log('Converting datetime-local:', dateTimeLocal, 'to ISO:', date.toISOString())
+    return date.toISOString()
+  }
+
   useEffect(() => {
     fetchConfig()
   }, [])
@@ -169,8 +189,8 @@ const SurveyConfig: React.FC = () => {
             </label>
             <input
               type="datetime-local"
-              value={new Date(config.startDate).toISOString().slice(0, 16)}
-              onChange={(e) => setConfig({ ...config, startDate: new Date(e.target.value).toISOString() })}
+              value={toDateTimeLocal(config.startDate)}
+              onChange={(e) => setConfig({ ...config, startDate: fromDateTimeLocal(e.target.value) })}
               className="form-input w-full"
             />
           </div>
@@ -182,8 +202,8 @@ const SurveyConfig: React.FC = () => {
             </label>
             <input
               type="datetime-local"
-              value={new Date(config.endDate).toISOString().slice(0, 16)}
-              onChange={(e) => setConfig({ ...config, endDate: new Date(e.target.value).toISOString() })}
+              value={toDateTimeLocal(config.endDate)}
+              onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
               className="form-input w-full"
             />
           </div>

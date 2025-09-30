@@ -75,20 +75,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST' || req.method === 'PUT') {
+      console.log('Survey config update request received')
+      
       // Update survey configuration (admin only)
       const authHeader = req.headers.authorization
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('Authentication required - no valid auth header')
         return res.status(401).json({ error: 'Authentication required' })
       }
 
       const token = authHeader.substring(7)
       const payload = verifyToken(token)
       if (!payload) {
+        console.log('Invalid token provided')
         return res.status(401).json({ error: 'Invalid token' })
       }
 
+      console.log('Authentication successful for user:', payload.username)
+
       const validationResult = surveyConfigSchema.safeParse(req.body)
       if (!validationResult.success) {
+        console.log('Validation failed:', validationResult.error.errors)
         return res.status(400).json({
           error: 'Invalid request data',
           details: validationResult.error.errors
@@ -96,15 +103,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const data = validationResult.data
+      console.log('Validation successful, data:', data)
 
       try {
+        console.log('Attempting database operations...')
+        
+        // Test database connection first
+        try {
+          await prisma.$connect()
+          console.log('Database connection successful')
+        } catch (connectError) {
+          console.error('Database connection failed:', connectError)
+          throw connectError
+        }
+        
         // First, try to find existing config
+        console.log('Looking for existing config with id: default')
         const existingConfig = await prisma.surveyConfig.findUnique({
           where: { id: 'default' }
         })
+        console.log('Existing config found:', !!existingConfig)
 
         let config
         if (existingConfig) {
+          console.log('Updating existing configuration...')
           // Update existing configuration
           config = await prisma.surveyConfig.update({
             where: { id: 'default' },
@@ -116,7 +138,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               description: data.description
             }
           })
+          console.log('Configuration updated successfully')
         } else {
+          console.log('Creating new configuration...')
           // Create new configuration
           config = await prisma.surveyConfig.create({
             data: {
@@ -128,9 +152,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               description: data.description
             }
           })
+          console.log('Configuration created successfully')
         }
 
         console.log(`Survey configuration updated by admin ${payload.username}`)
+
+        // Disconnect from database
+        await prisma.$disconnect()
+        console.log('Database disconnected')
 
         return res.status(200).json({
           success: true,
@@ -139,9 +168,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
       } catch (dbError) {
         console.error('Database error in survey-config POST/PUT:', dbError)
+        console.error('Error details:', JSON.stringify(dbError, null, 2))
+        
+        // Try to disconnect from database
+        try {
+          await prisma.$disconnect()
+        } catch (disconnectError) {
+          console.error('Error disconnecting from database:', disconnectError)
+        }
+        
         return res.status(500).json({
           error: 'Database unavailable',
-          message: 'Cannot update configuration - database not available'
+          message: 'Cannot update configuration - database not available',
+          details: dbError instanceof Error ? dbError.message : 'Unknown database error'
         })
       }
     }
@@ -197,9 +236,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('Error in survey-config API:', error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
     return res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to process survey configuration request'
+      message: 'Failed to process survey configuration request',
+      details: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
