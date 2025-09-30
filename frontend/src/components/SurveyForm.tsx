@@ -513,7 +513,7 @@ const SurveyForm: React.FC = () => {
                         if (field === 'awareness') {
                           return !value || Object.values(value).some(v => v === undefined || v === null || v === '')
                         }
-                        if (field === 'urgentTrainings') {
+                        if (field === 'urgentTrainings' || field === 'prioritizedPolicies' || field === 'policyChallenges') {
                           return !value || (Array.isArray(value) && value.length === 0)
                         }
                         if (field === 'facedUnsureSituation') {
@@ -532,9 +532,9 @@ const SurveyForm: React.FC = () => {
                       }
                       
                       // Check if Section J fields are filled
-                      if (!formData.prioritizedPolicies || formData.prioritizedPolicies.trim() === '' ||
+                      if (!formData.prioritizedPolicies || (Array.isArray(formData.prioritizedPolicies) && formData.prioritizedPolicies.length === 0) ||
                           !formData.prioritizationReason || formData.prioritizationReason.trim() === '' ||
-                          !formData.policyChallenges || formData.policyChallenges.trim() === '' ||
+                          !formData.policyChallenges || (Array.isArray(formData.policyChallenges) && formData.policyChallenges.length === 0) ||
                           !formData.complianceSuggestions || formData.complianceSuggestions.trim() === '') {
                         toast.error('Please complete all required fields in Section J before submitting')
                         console.log('Section J validation failed on submit:', {
