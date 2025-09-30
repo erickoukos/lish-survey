@@ -167,6 +167,7 @@ const SurveyForm: React.FC = () => {
     setIsSubmitting(true)
     try {
       console.log('Submitting to API...')
+      console.log('Data being sent to API:', JSON.stringify(dataToSend, null, 2))
       const result = await surveyApi.submit(dataToSend)
       console.log('API response:', result)
       
@@ -180,13 +181,18 @@ const SurveyForm: React.FC = () => {
       console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        code: error.code
       })
       
       // Log detailed validation errors
       if (error.response?.data?.details) {
         console.error('Validation errors:', error.response.data.details)
+        console.error('Full validation error details:', JSON.stringify(error.response.data.details, null, 2))
       }
+      
+      // Log the full response for debugging
+      console.error('Full error response:', JSON.stringify(error.response?.data, null, 2))
       
       toast.error(error.response?.data?.message || 'Failed to submit survey. Please try again.')
     } finally {
