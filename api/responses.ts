@@ -77,6 +77,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     } catch (dbError) {
       console.error('Database error in responses API:', dbError)
+      console.error('Database error details:', {
+        message: dbError.message,
+        code: dbError.code,
+        meta: dbError.meta
+      })
       
       // Return empty response if database is not available
       return res.status(200).json({
@@ -90,7 +95,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hasNextPage: false,
           hasPrevPage: false
         },
-        warning: 'Database not available - no responses to display'
+        warning: 'Database not available - no responses to display',
+        error: {
+          message: dbError.message,
+          code: dbError.code
+        }
       })
     }
 
