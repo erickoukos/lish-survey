@@ -162,7 +162,7 @@ const SurveyForm: React.FC = () => {
     }
 
     console.log('Data to send:', dataToSend)
-    console.log('Awareness array:', transformedAwareness)
+    console.log('Awareness object:', dataToSend.awareness)
     
     setIsSubmitting(true)
     try {
