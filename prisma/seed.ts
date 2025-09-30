@@ -1,97 +1,66 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding database...')
+  console.log('🌱 Starting database seeding...')
 
-  // Create sample survey responses for testing
-  const sampleResponses = [
-    {
-      department: 'Technical Team',
-      awareness: JSON.stringify({
-        antiSocialBehavior: 4,
-        antiDiscrimination: 5,
-        sexualHarassment: 3,
-        safeguarding: 4,
-        hrPolicyManual: 2,
-        codeOfConduct: 4,
-        financeWellness: 3,
-        workLifeBalance: 4,
-        digitalWorkplace: 5,
-        softSkills: 3,
-        professionalism: 4
-      }),
-      urgentTrainings: JSON.stringify(['Anti-Social Behavior Policy', 'HR Policy Manual']),
-      financeWellnessNeeds: JSON.stringify(['Financial Literacy Basics – Saving, spending, and tracking money smartly']),
-      cultureWellnessNeeds: JSON.stringify(['Stress management strategies for high-paced digital environments']),
-      digitalSkillsNeeds: JSON.stringify(['Cybersecurity Awareness']),
-      professionalDevNeeds: JSON.stringify(['Effective Communication']),
-      confidenceLevel: 'Confident',
-      facedUnsureSituation: true,
-      unsureSituationDescription: 'Not sure about reporting procedures',
-      observedIssues: JSON.stringify(['None of the above']),
-      knewReportingChannel: 'Yes',
-      trainingMethod: 'In-person training sessions',
-      refresherFrequency: '1 training /Monthly',
-      prioritizedPolicies: 'Anti-discrimination and harassment policies',
-      prioritizationReason: 'These are most critical for workplace safety',
-      policyChallenges: 'Complex language in policy documents',
-      complianceSuggestions: 'More interactive training sessions',
-      generalComments: 'Great initiative!'
-    },
-    {
-      department: 'HR & Administration Department',
-      awareness: JSON.stringify({
-        antiSocialBehavior: 5,
-        antiDiscrimination: 5,
-        sexualHarassment: 5,
-        safeguarding: 5,
-        hrPolicyManual: 5,
-        codeOfConduct: 5,
-        financeWellness: 4,
-        workLifeBalance: 4,
-        digitalWorkplace: 4,
-        softSkills: 5,
-        professionalism: 5
-      }),
-      urgentTrainings: JSON.stringify(['Finance & Financial Wellness']),
-      financeWellnessNeeds: JSON.stringify(['Investment & Savings Options – youth-friendly investment paths like SACCOs, money markets, and digital assets']),
-      cultureWellnessNeeds: JSON.stringify(['Resilience & Adaptability Training']),
-      digitalSkillsNeeds: JSON.stringify(['Responsible AI & Ethical Tech Use']),
-      professionalDevNeeds: JSON.stringify(['Leadership Skills for Young Professionals']),
-      confidenceLevel: 'Very confident',
-      facedUnsureSituation: false,
-      observedIssues: JSON.stringify(['None of the above']),
-      knewReportingChannel: 'Yes',
-      trainingMethod: 'Self-paced e-learning modules',
-      refresherFrequency: '2 trainings /Month',
-      prioritizedPolicies: 'All policies are important',
-      prioritizationReason: 'Comprehensive approach needed',
-      policyChallenges: 'Keeping policies updated',
-      complianceSuggestions: 'Regular policy reviews',
-      generalComments: 'Excellent survey design'
+  // Create admin user
+  const adminPassword = 'LishAdmin2025!' // Strong default password
+  const hashedPassword = await bcrypt.hash(adminPassword, 12)
+
+  const adminUser = await prisma.adminUser.upsert({
+    where: { username: 'admin' },
+    update: {},
+    create: {
+      username: 'admin',
+      email: 'admin@lishailabs.com',
+      passwordHash: hashedPassword,
+      fullName: 'System Administrator',
+      role: 'admin',
+      isActive: true
     }
-  ]
+  })
 
-  // Clear existing data
-  await prisma.surveyResponse.deleteMany()
-  console.log('🗑️  Cleared existing data')
+  console.log('✅ Admin user created:', {
+    id: adminUser.id,
+    username: adminUser.username,
+    email: adminUser.email,
+    fullName: adminUser.fullName,
+    role: adminUser.role
+  })
 
-  // Insert sample data
-  for (const response of sampleResponses) {
-    await prisma.surveyResponse.create({
-      data: response
-    })
-  }
+  // Create default survey configuration if it doesn't exist
+  const surveyConfig = await prisma.surveyConfig.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      isActive: true,
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      title: 'Policy Awareness Survey',
+      description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+    }
+  })
 
-  console.log(`✅ Created ${sampleResponses.length} sample responses`)
-  console.log('🎉 Seeding completed!')
+  console.log('✅ Survey configuration created:', {
+    id: surveyConfig.id,
+    isActive: surveyConfig.isActive,
+    title: surveyConfig.title
+  })
+
+  console.log('🎉 Database seeding completed successfully!')
+  console.log('📧 Admin credentials:')
+  console.log('   Username: admin')
+  console.log('   Password: LishAdmin2025!')
+  console.log('   Email: admin@lishailabs.com')
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e)
+    console.error('❌ Error during seeding:', e)
     process.exit(1)
   })
   .finally(async () => {

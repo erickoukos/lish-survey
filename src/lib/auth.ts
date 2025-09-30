@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key'
 export interface JWTPayload {
   userId: string
   username: string
+  role?: string
   iat?: number
   exp?: number
 }

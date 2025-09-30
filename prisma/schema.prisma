@@ -55,3 +55,18 @@ model SurveyConfig {
 
   @@map("survey_config")
 }
+
+model AdminUser {
+  id                String   @id @default(uuid())
+  username          String   @unique
+  email             String   @unique
+  passwordHash      String
+  fullName          String
+  role              String   @default("admin")
+  isActive          Boolean  @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("admin_users")
+}

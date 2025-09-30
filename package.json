@@ -17,6 +17,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",
+    "setup:admin": "node scripts/setup-admin.js",
     "test": "jest",
     "test:api": "jest --testPathPattern=api",
     "test:watch": "jest --watch",
