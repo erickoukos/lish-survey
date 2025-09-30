@@ -55,8 +55,8 @@ const Introduction: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-secondary-900 mb-1 sm:mb-2 text-sm sm:text-base">Quick</h3>
-                <p className="text-xs sm:text-sm text-secondary-600">Takes about 10-15 minutes to complete</p>
+                <h3 className="font-semibold text-secondary-900 mb-1 sm:mb-2 text-sm sm:text-base">Flexible</h3>
+                <p className="text-xs sm:text-sm text-secondary-600">Survey runs for 7 days - complete at your pace</p>
               </div>
               
               <div className="text-center sm:col-span-2 lg:col-span-1">
