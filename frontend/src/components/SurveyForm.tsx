@@ -147,10 +147,33 @@ const SurveyForm: React.FC = () => {
     console.log('Form errors:', errors)
     console.log('Form is valid:', Object.keys(errors).length === 0)
     
+    // Transform awareness object to match backend schema
+    const transformedAwareness = Object.entries(data.awareness).map(([key, value]) => ({
+      policy: key,
+      awarenessLevel: value
+    }))
+
+    // Prepare data for submission - send arrays as arrays, not strings
+    const dataToSend = {
+      ...data,
+      awareness: transformedAwareness, // Array of objects
+      urgentTrainings: data.urgentTrainings?.filter(Boolean) || [],
+      financeWellnessNeeds: data.financeWellnessNeeds?.filter(Boolean) || [],
+      cultureWellnessNeeds: data.cultureWellnessNeeds?.filter(Boolean) || [],
+      digitalSkillsNeeds: data.digitalSkillsNeeds?.filter(Boolean) || [],
+      professionalDevNeeds: data.professionalDevNeeds?.filter(Boolean) || [],
+      observedIssues: data.observedIssues?.filter(Boolean) || [],
+      prioritizedPolicies: data.prioritizedPolicies?.filter(Boolean) || [],
+      policyChallenges: data.policyChallenges?.filter(Boolean) || []
+    }
+
+    console.log('Data to send:', dataToSend)
+    console.log('Awareness array:', transformedAwareness)
+    
     setIsSubmitting(true)
     try {
       console.log('Submitting to API...')
-      const result = await surveyApi.submit(data)
+      const result = await surveyApi.submit(dataToSend)
       console.log('API response:', result)
       
       // Clear form data from localStorage after successful submission
