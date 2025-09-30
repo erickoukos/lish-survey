@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://lish-survey-eir5grudr-lish-ai-labs.vercel.app'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app'
 
 // Add cache-busting to force fresh API calls
 const CACHE_BUST = Date.now()
