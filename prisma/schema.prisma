@@ -43,7 +43,7 @@ model SurveyResponse {
 }
 
 model SurveyConfig {
-  id                String   @id @default(uuid())
+  id                String   @id @default("default")
   isActive          Boolean  @default(true)
   startDate         DateTime
   endDate           DateTime

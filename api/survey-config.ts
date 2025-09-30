@@ -98,25 +98,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const data = validationResult.data
 
       try {
-        // Update or create configuration
-        const config = await prisma.surveyConfig.upsert({
-          where: { id: 'default' },
-          update: {
-            isActive: data.isActive,
-            startDate: new Date(data.startDate),
-            endDate: new Date(data.endDate),
-            title: data.title || 'Policy Awareness Survey',
-            description: data.description
-          },
-          create: {
-            id: 'default',
-            isActive: data.isActive,
-            startDate: new Date(data.startDate),
-            endDate: new Date(data.endDate),
-            title: data.title || 'Policy Awareness Survey',
-            description: data.description
-          }
+        // First, try to find existing config
+        const existingConfig = await prisma.surveyConfig.findUnique({
+          where: { id: 'default' }
         })
+
+        let config
+        if (existingConfig) {
+          // Update existing configuration
+          config = await prisma.surveyConfig.update({
+            where: { id: 'default' },
+            data: {
+              isActive: data.isActive,
+              startDate: new Date(data.startDate),
+              endDate: new Date(data.endDate),
+              title: data.title || 'Policy Awareness Survey',
+              description: data.description
+            }
+          })
+        } else {
+          // Create new configuration
+          config = await prisma.surveyConfig.create({
+            data: {
+              id: 'default',
+              isActive: data.isActive,
+              startDate: new Date(data.startDate),
+              endDate: new Date(data.endDate),
+              title: data.title || 'Policy Awareness Survey',
+              description: data.description
+            }
+          })
+        }
 
         console.log(`Survey configuration updated by admin ${payload.username}`)
 
@@ -147,29 +159,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Invalid token' })
       }
 
-      // Delete all survey responses
-      const deleteResult = await prisma.surveyResponse.deleteMany({})
-      
-      // Reset survey configuration to default
-      await prisma.surveyConfig.deleteMany({})
-      
-      const defaultConfig = await prisma.surveyConfig.create({
-        data: {
-          isActive: true,
-          startDate: new Date(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-          title: 'Policy Awareness Survey',
-          description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
-        }
-      })
+      try {
+        // Delete all survey responses
+        const deleteResult = await prisma.surveyResponse.deleteMany({})
 
-      console.log(`Survey reset by admin ${payload.username}: ${deleteResult.count} responses deleted`)
+        // Reset survey configuration to default
+        await prisma.surveyConfig.deleteMany({})
 
-      return res.status(200).json({
-        success: true,
-        message: `Survey reset successfully. ${deleteResult.count} responses deleted.`,
-        config: defaultConfig
-      })
+        const defaultConfig = await prisma.surveyConfig.create({
+          data: {
+            id: 'default',
+            isActive: true,
+            startDate: new Date(),
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            title: 'Policy Awareness Survey',
+            description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+          }
+        })
+
+        console.log(`Survey reset by admin ${payload.username}: ${deleteResult.count} responses deleted`)
+
+        return res.status(200).json({
+          success: true,
+          message: `Survey reset successfully. ${deleteResult.count} responses deleted.`,
+          config: defaultConfig
+        })
+      } catch (dbError) {
+        console.error('Database error in survey-config DELETE:', dbError)
+        return res.status(500).json({
+          error: 'Database unavailable',
+          message: 'Cannot reset survey - database not available'
+        })
+      }
     }
 
     return res.status(405).json({ error: 'Method not allowed' })

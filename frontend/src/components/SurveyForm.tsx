@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { surveyFormSchema, SurveyFormData } from '../lib/validation'
 import { surveyApi } from '../lib/api'
 import ProgressBar from './ProgressBar'
 import Introduction from './Introduction'
+import SurveyUnavailable from './SurveyUnavailable'
 import SectionA from './survey-sections/SectionA'
 import SectionB from './survey-sections/SectionB'
 import SectionC from './survey-sections/SectionC'
@@ -22,8 +23,64 @@ const SurveyForm: React.FC = () => {
   const navigate = useNavigate()
   const [currentSection, setCurrentSection] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [surveyConfig, setSurveyConfig] = useState<any>(null)
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true)
   
   const totalSections = 11
+
+  // Check survey availability
+  useEffect(() => {
+    const checkSurveyAvailability = async () => {
+      try {
+        const response = await surveyApi.getSurveyConfig()
+        setSurveyConfig(response.config)
+      } catch (error) {
+        console.error('Error fetching survey config:', error)
+        // If we can't fetch config, assume survey is available
+        setSurveyConfig({
+          isActive: true,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        })
+      } finally {
+        setIsLoadingConfig(false)
+      }
+    }
+
+    checkSurveyAvailability()
+  }, [])
+
+  const isSurveyAvailable = () => {
+    if (!surveyConfig) return true // Default to available if no config
+
+    const now = new Date()
+    const startDate = new Date(surveyConfig.startDate)
+    const endDate = new Date(surveyConfig.endDate)
+
+    if (!surveyConfig.isActive) {
+      return { available: false, reason: 'inactive' as const }
+    }
+
+    if (now < startDate) {
+      return { 
+        available: false, 
+        reason: 'not_started' as const,
+        startDate: surveyConfig.startDate,
+        endDate: surveyConfig.endDate
+      }
+    }
+
+    if (now > endDate) {
+      return { 
+        available: false, 
+        reason: 'ended' as const,
+        startDate: surveyConfig.startDate,
+        endDate: surveyConfig.endDate
+      }
+    }
+
+    return { available: true }
+  }
 
   const getSectionName = (section: number) => {
     const sectionNames = [
@@ -355,6 +412,30 @@ const SurveyForm: React.FC = () => {
       default:
         return null
     }
+  }
+
+  // Show loading state while checking survey availability
+  if (isLoadingConfig) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-secondary-600">Loading survey...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Check if survey is available
+  const availability = isSurveyAvailable()
+  if (!availability.available) {
+    return (
+      <SurveyUnavailable 
+        reason={availability.reason}
+        startDate={availability.startDate}
+        endDate={availability.endDate}
+      />
+    )
   }
 
   return (

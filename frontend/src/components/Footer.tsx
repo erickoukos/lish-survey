@@ -6,7 +6,16 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">LISH AI LABS</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
+              <a 
+                href="https://lishailabs.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-secondary-200 transition-colors duration-200"
+              >
+                LISH AI LABS
+              </a>
+            </h3>
             <p className="text-secondary-300 text-xs sm:text-sm">
               Leading the future of artificial intelligence and policy development.
             </p>
@@ -34,7 +43,16 @@ const Footer: React.FC = () => {
             © {new Date().getFullYear()} LISH AI LABS. All rights reserved.
           </p>
           <p className="text-secondary-500 text-xs mt-1 sm:mt-2">
-            Created with ❤️ by Erick Ouko N., CTO - LISH AI LABS
+            Created with ❤️ by{' '}
+            <a 
+              href="https://ke.linkedin.com/in/erick-ouko-nyanamba" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-secondary-300 transition-colors duration-200"
+            >
+              Erick Ouko N.
+            </a>
+            , CTO - LISH AI LABS
           </p>
         </div>
       </div>
