@@ -116,13 +116,24 @@ const SurveyConfig: React.FC = () => {
           Survey Configuration
         </h2>
         <div className="flex items-center space-x-2">
-          <span className={`font-semibold ${statusInfo.color}`}>
-            Status: {statusInfo.status}
-          </span>
+          <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${statusInfo.color} ${
+            statusInfo.status === 'Active' ? 'bg-green-100' :
+            statusInfo.status === 'Inactive' ? 'bg-gray-100' :
+            statusInfo.status === 'Not Started' ? 'bg-yellow-100' :
+            statusInfo.status === 'Ended' ? 'bg-red-100' : 'bg-gray-100'
+          }`}>
+            <div className={`w-2 h-2 rounded-full mr-2 ${
+              statusInfo.status === 'Active' ? 'bg-green-500' :
+              statusInfo.status === 'Inactive' ? 'bg-gray-500' :
+              statusInfo.status === 'Not Started' ? 'bg-yellow-500' :
+              statusInfo.status === 'Ended' ? 'bg-red-500' : 'bg-gray-500'
+            }`}></div>
+            {statusInfo.status}
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
+      <div className="bg-white rounded-xl shadow-lg border border-secondary-200 p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-2">
@@ -191,37 +202,54 @@ const SurveyConfig: React.FC = () => {
           />
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-secondary-600">
-            <p>Created: {new Date(config.createdAt).toLocaleString()}</p>
-            <p>Updated: {new Date(config.updatedAt).toLocaleString()}</p>
-          </div>
+        <div className="mt-8 pt-6 border-t border-secondary-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="text-sm text-secondary-600 space-y-1">
+              <p className="flex items-center">
+                <Clock className="w-4 h-4 mr-2" />
+                Created: {new Date(config.createdAt).toLocaleString()}
+              </p>
+              <p className="flex items-center">
+                <Clock className="w-4 h-4 mr-2" />
+                Updated: {new Date(config.updatedAt).toLocaleString()}
+              </p>
+            </div>
 
-          <div className="flex space-x-3">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="btn-primary flex items-center"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95"
+              >
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </button>
 
-            <button
-              onClick={() => setShowResetConfirm(true)}
-              className="btn-outline text-red-600 border-red-300 hover:bg-red-50 flex items-center"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Reset Survey
-            </button>
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="inline-flex items-center justify-center px-6 py-3 bg-white text-red-600 font-semibold rounded-lg border-2 border-red-200 shadow-sm hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 active:scale-95"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Reset Survey
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-8 border border-secondary-200">
             <div className="flex items-center mb-4">
               <AlertTriangle className="w-6 h-6 text-red-600 mr-3" />
               <h3 className="text-lg font-semibold text-secondary-900">
@@ -234,17 +262,17 @@ const SurveyConfig: React.FC = () => {
               This cannot be undone. Are you sure you want to continue?
             </p>
             
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="btn-outline flex-1"
+                className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-white text-secondary-700 font-semibold rounded-lg border-2 border-secondary-200 shadow-sm hover:bg-secondary-50 hover:border-secondary-300 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReset}
                 disabled={resetting}
-                className="btn-primary bg-red-600 hover:bg-red-700 flex-1 flex items-center justify-center"
+                className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95"
               >
                 {resetting ? (
                   <>
