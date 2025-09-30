@@ -108,7 +108,7 @@ const SurveyUnavailable: React.FC<SurveyUnavailableProps> = ({
               <p><strong>HR Office:</strong> hr@lishailabs.com</p>
               <p><strong>Phone:</strong> +254 715 545 018</p>
               <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</p>
-              <p><strong>Survey Duration:</strong> Usually takes 7 days to complete</p>
+              <p><strong>Survey Availability:</strong> Usually active for 7 days</p>
             </div>
           </div>
         </div>
