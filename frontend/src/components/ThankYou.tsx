@@ -32,19 +32,12 @@ const ThankYou: React.FC = () => {
             </ul>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link
               to="/"
               className="btn-primary px-6 py-3"
             >
               Submit Another Response
-            </Link>
-            
-            <Link
-              to="/login"
-              className="btn-outline px-6 py-3"
-            >
-              Admin Dashboard
             </Link>
           </div>
         </div>

@@ -174,6 +174,51 @@ const SurveyForm: React.FC = () => {
       // Clear form data from localStorage after successful submission
       clearFormData()
       
+      // Reset form to initial state
+      form.reset({
+        department: '',
+        awareness: {
+          antiSocialBehavior: undefined,
+          antiDiscrimination: undefined,
+          sexualHarassment: undefined,
+          safeguarding: undefined,
+          hrPolicyManual: undefined,
+          codeOfConduct: undefined,
+          financeWellness: undefined,
+          workLifeBalance: undefined,
+          digitalWorkplace: undefined,
+          softSkills: undefined,
+          professionalism: undefined
+        },
+        urgentTrainings: [],
+        urgentTrainingsOther: '',
+        financeWellnessNeeds: [],
+        cultureWellnessNeeds: [],
+        cultureWellnessOther: '',
+        digitalSkillsNeeds: [],
+        digitalSkillsOther: '',
+        professionalDevNeeds: [],
+        professionalDevOther: '',
+        confidenceLevel: undefined,
+        facedUnsureSituation: undefined,
+        unsureSituationDescription: '',
+        observedIssues: [],
+        observedIssuesOther: '',
+        knewReportingChannel: undefined,
+        trainingMethod: undefined,
+        trainingMethodOther: '',
+        refresherFrequency: undefined,
+        prioritizedPolicies: [],
+        prioritizationReason: '',
+        policyChallenges: [],
+        policyChallengesOther: '',
+        complianceSuggestions: '',
+        generalComments: ''
+      })
+      
+      // Reset to first section
+      setCurrentSection(0)
+      
       toast.success('Survey submitted successfully!')
       navigate('/thank-you')
     } catch (error: any) {
@@ -658,6 +703,55 @@ const SurveyForm: React.FC = () => {
                         console.log('API Base URL:', import.meta.env.VITE_API_URL || 'https://lish-survey-kv379w9h1-lish-ai-labs.vercel.app')
                         const result = await surveyApi.submit(transformedData)
                         console.log('API response:', result)
+                        
+                        // Clear form data from localStorage after successful submission
+                        clearFormData()
+                        
+                        // Reset form to initial state
+                        form.reset({
+                          department: '',
+                          awareness: {
+                            antiSocialBehavior: undefined,
+                            antiDiscrimination: undefined,
+                            sexualHarassment: undefined,
+                            safeguarding: undefined,
+                            hrPolicyManual: undefined,
+                            codeOfConduct: undefined,
+                            financeWellness: undefined,
+                            workLifeBalance: undefined,
+                            digitalWorkplace: undefined,
+                            softSkills: undefined,
+                            professionalism: undefined
+                          },
+                          urgentTrainings: [],
+                          urgentTrainingsOther: '',
+                          financeWellnessNeeds: [],
+                          cultureWellnessNeeds: [],
+                          cultureWellnessOther: '',
+                          digitalSkillsNeeds: [],
+                          digitalSkillsOther: '',
+                          professionalDevNeeds: [],
+                          professionalDevOther: '',
+                          confidenceLevel: undefined,
+                          facedUnsureSituation: undefined,
+                          unsureSituationDescription: '',
+                          observedIssues: [],
+                          observedIssuesOther: '',
+                          knewReportingChannel: undefined,
+                          trainingMethod: undefined,
+                          trainingMethodOther: '',
+                          refresherFrequency: undefined,
+                          prioritizedPolicies: [],
+                          prioritizationReason: '',
+                          policyChallenges: [],
+                          policyChallengesOther: '',
+                          complianceSuggestions: '',
+                          generalComments: ''
+                        })
+                        
+                        // Reset to first section
+                        setCurrentSection(0)
+                        
                         toast.success('Survey submitted successfully!')
                         navigate('/thank-you')
                       } catch (error: any) {
