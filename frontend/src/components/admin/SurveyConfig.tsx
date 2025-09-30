@@ -41,6 +41,13 @@ const SurveyConfig: React.FC = () => {
     return date.toISOString()
   }
 
+  // Helper function to calculate end date (7 days after start date)
+  const calculateEndDate = (startDate: string) => {
+    const start = new Date(startDate)
+    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days later
+    return end.toISOString()
+  }
+
   useEffect(() => {
     fetchConfig()
   }, [])
@@ -190,7 +197,15 @@ const SurveyConfig: React.FC = () => {
             <input
               type="datetime-local"
               value={toDateTimeLocal(config.startDate)}
-              onChange={(e) => setConfig({ ...config, startDate: fromDateTimeLocal(e.target.value) })}
+              onChange={(e) => {
+                const newStartDate = fromDateTimeLocal(e.target.value)
+                const newEndDate = calculateEndDate(newStartDate)
+                setConfig({ 
+                  ...config, 
+                  startDate: newStartDate,
+                  endDate: newEndDate
+                })
+              }}
               className="form-input w-full"
             />
           </div>
@@ -199,12 +214,14 @@ const SurveyConfig: React.FC = () => {
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               End Date & Time
+              <span className="text-xs text-blue-600 ml-2">(Automatically set to 7 days after start date)</span>
             </label>
             <input
               type="datetime-local"
               value={toDateTimeLocal(config.endDate)}
               onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
-              className="form-input w-full"
+              className="form-input w-full bg-gray-50"
+              title="End date is automatically calculated as 7 days after start date"
             />
           </div>
         </div>

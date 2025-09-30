@@ -31,11 +31,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!config) {
           // Create default configuration if none exists
+          const startDate = new Date()
+          const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
           const defaultConfig = await prisma.surveyConfig.create({
             data: {
               isActive: true,
-              startDate: new Date(),
-              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+              startDate: startDate,
+              endDate: endDate,
               title: 'Policy Awareness Survey',
               description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
             }
@@ -55,11 +57,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error('Database error in survey-config GET:', dbError)
         
         // Return default configuration if database is not available
+        const startDate = new Date()
+        const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         const defaultConfig = {
           id: 'default',
           isActive: true,
-          startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
           title: 'Policy Awareness Survey',
           description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
           createdAt: new Date().toISOString(),
@@ -124,6 +128,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
         console.log('Existing config found:', !!existingConfig)
 
+        // Calculate end date: 7 days after start date when survey is active
+        const startDate = new Date(data.startDate)
+        const endDate = data.isActive 
+          ? new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from start date
+          : new Date(data.endDate) // Use provided end date if inactive
+
         let config
         if (existingConfig) {
           console.log('Updating existing configuration...')
@@ -132,8 +142,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             where: { id: 'default' },
             data: {
               isActive: data.isActive,
-              startDate: new Date(data.startDate),
-              endDate: new Date(data.endDate),
+              startDate: startDate,
+              endDate: endDate,
               title: data.title || 'Policy Awareness Survey',
               description: data.description
             }
@@ -146,8 +156,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             data: {
               id: 'default',
               isActive: data.isActive,
-              startDate: new Date(data.startDate),
-              endDate: new Date(data.endDate),
+              startDate: startDate,
+              endDate: endDate,
               title: data.title || 'Policy Awareness Survey',
               description: data.description
             }
@@ -205,12 +215,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Reset survey configuration to default
         await prisma.surveyConfig.deleteMany({})
 
+        const startDate = new Date()
+        const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         const defaultConfig = await prisma.surveyConfig.create({
           data: {
             id: 'default',
             isActive: true,
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            startDate: startDate,
+            endDate: endDate,
             title: 'Policy Awareness Survey',
             description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
           }
