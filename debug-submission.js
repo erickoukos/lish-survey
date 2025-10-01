@@ -22,16 +22,16 @@ async function debugSubmission() {
         softSkills: 3,
         professionalism: 4
       },
-      urgentTrainings: ['Anti-Social Behavior Policy', 'Sexual Harassment Prevention'],
+      urgentTrainings: ['Anti-Social Behavior Policy', 'Sexual and Other forms of harassment Policy'],
       confidenceLevel: 'Confident',
       facedUnsureSituation: false,
       knewReportingChannel: 'Yes',
       trainingMethod: 'In-person training sessions',
       refresherFrequency: '1 training /Monthly',
-      // Section J data - exactly what frontend sends
-      prioritizedPolicies: ['Anti-Discrimination Policy', 'Code of Conduct'],
+      // Section J data - with workaround for current API
+      prioritizedPolicies: 'Anti-Discrimination Policy, Code of Conduct',
       prioritizationReason: 'These policies are most critical for workplace safety',
-      policyChallenges: ['Policies are too complex or difficult to understand', 'Language barriers or technical jargon'],
+      policyChallenges: 'Policies are too complex or difficult to understand, Language barriers or technical jargon',
       policyChallengesOther: '',
       complianceSuggestions: 'Implement regular training sessions',
       generalComments: 'Great initiative'

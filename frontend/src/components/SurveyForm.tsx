@@ -591,13 +591,27 @@ const SurveyForm: React.FC = () => {
                           softSkills: Number(formData.awareness?.softSkills) || 1,
                           professionalism: Number(formData.awareness?.professionalism) || 1
                         },
-                        urgentTrainings: formData.urgentTrainings || [],
+                        urgentTrainings: Array.isArray(formData.urgentTrainings) 
+                          ? formData.urgentTrainings.map(item => 
+                              item === 'Sexual Harassment Prevention' 
+                                ? 'Sexual and Other forms of harassment Policy' 
+                                : item
+                            )
+                          : formData.urgentTrainings || [],
                         financeWellnessNeeds: formData.financeWellnessNeeds || [],
                         cultureWellnessNeeds: formData.cultureWellnessNeeds || [],
                         digitalSkillsNeeds: formData.digitalSkillsNeeds || [],
                         professionalDevNeeds: formData.professionalDevNeeds || [],
                         observedIssues: formData.observedIssues || [],
-                        facedUnsureSituation: formData.facedUnsureSituation === 'true'
+                        facedUnsureSituation: formData.facedUnsureSituation === 'true',
+                        // Temporary workaround: convert Section J arrays to strings for current API
+                        prioritizedPolicies: Array.isArray(formData.prioritizedPolicies) 
+                          ? formData.prioritizedPolicies.join(', ') 
+                          : formData.prioritizedPolicies || '',
+                        policyChallenges: Array.isArray(formData.policyChallenges) 
+                          ? formData.policyChallenges.join(', ') 
+                          : formData.policyChallenges || '',
+                        policyChallengesOther: formData.policyChallengesOther || ''
                       }
                       
                       console.log('Transformed data:', transformedData)
