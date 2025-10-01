@@ -73,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    // Validate request body
+    // Validate request body - Updated for Section J array fields v2.0
     console.log('API: Validating request body...')
     console.log('API: Request body keys:', Object.keys(req.body))
     console.log('API: prioritizedPolicies type:', typeof req.body.prioritizedPolicies, Array.isArray(req.body.prioritizedPolicies))
