@@ -355,9 +355,9 @@ const SurveyForm: React.FC = () => {
         }
         break
       case 10: // Section J - Final Questions (required)
-        if (!formData.prioritizedPolicies || formData.prioritizedPolicies.trim() === '' ||
+        if (!formData.prioritizedPolicies || !Array.isArray(formData.prioritizedPolicies) || formData.prioritizedPolicies.length === 0 ||
             !formData.prioritizationReason || formData.prioritizationReason.trim() === '' ||
-            !formData.policyChallenges || formData.policyChallenges.trim() === '' ||
+            !formData.policyChallenges || !Array.isArray(formData.policyChallenges) || formData.policyChallenges.length === 0 ||
             !formData.complianceSuggestions || formData.complianceSuggestions.trim() === '') {
           isValid = false
           console.log('Section J validation failed:', {
@@ -532,9 +532,9 @@ const SurveyForm: React.FC = () => {
                       }
                       
                       // Check if Section J fields are filled
-                      if (!formData.prioritizedPolicies || formData.prioritizedPolicies.trim() === '' ||
+                      if (!formData.prioritizedPolicies || !Array.isArray(formData.prioritizedPolicies) || formData.prioritizedPolicies.length === 0 ||
                           !formData.prioritizationReason || formData.prioritizationReason.trim() === '' ||
-                          !formData.policyChallenges || formData.policyChallenges.trim() === '' ||
+                          !formData.policyChallenges || !Array.isArray(formData.policyChallenges) || formData.policyChallenges.length === 0 ||
                           !formData.complianceSuggestions || formData.complianceSuggestions.trim() === '') {
                         toast.error('Please complete all required fields in Section J before submitting')
                         console.log('Section J validation failed on submit:', {

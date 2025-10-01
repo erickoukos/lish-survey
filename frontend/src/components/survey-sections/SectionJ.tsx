@@ -7,7 +7,7 @@ interface SectionJProps {
 }
 
 const SectionJ: React.FC<SectionJProps> = ({ form }) => {
-  const { register, formState: { errors } } = form
+  const { register, formState: { errors }, watch, setValue } = form
 
   return (
     <div className="space-y-6">
@@ -37,17 +37,29 @@ const SectionJ: React.FC<SectionJProps> = ({ form }) => {
               'Work-Life Balance & Mental Health Policy',
               'Digital Workplace & Skills Policy',
               'Soft Skills Development Policy'
-            ].map((policy) => (
-              <label key={policy} className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  value={policy}
-                  {...register('prioritizedPolicies')}
-                  className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
-                />
-                <span className="text-sm text-secondary-700">{policy}</span>
-              </label>
-            ))}
+            ].map((policy) => {
+              const currentValues = watch('prioritizedPolicies') || []
+              const isChecked = currentValues.includes(policy)
+              
+              return (
+                <label key={policy} className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => {
+                      const currentValues = watch('prioritizedPolicies') || []
+                      if (e.target.checked) {
+                        setValue('prioritizedPolicies', [...currentValues, policy])
+                      } else {
+                        setValue('prioritizedPolicies', currentValues.filter(v => v !== policy))
+                      }
+                    }}
+                    className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                  />
+                  <span className="text-sm text-secondary-700">{policy}</span>
+                </label>
+              )
+            })}
           </div>
           {errors.prioritizedPolicies && (
             <p className="form-error mt-2">{errors.prioritizedPolicies.message}</p>
@@ -85,29 +97,43 @@ const SectionJ: React.FC<SectionJProps> = ({ form }) => {
               'Unclear consequences or enforcement procedures',
               'Limited time to read and understand all policies',
               'Others (Specify)'
-            ].map((challenge) => (
-              <label key={challenge} className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  value={challenge}
-                  {...register('policyChallenges')}
-                  className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
-                />
-                <span className="text-sm text-secondary-700">{challenge}</span>
+            ].map((challenge) => {
+              const currentValues = watch('policyChallenges') || []
+              const isChecked = currentValues.includes(challenge)
+              
+              return (
+                <label key={challenge} className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => {
+                      const currentValues = watch('policyChallenges') || []
+                      if (e.target.checked) {
+                        setValue('policyChallenges', [...currentValues, challenge])
+                      } else {
+                        setValue('policyChallenges', currentValues.filter(v => v !== challenge))
+                      }
+                    }}
+                    className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                  />
+                  <span className="text-sm text-secondary-700">{challenge}</span>
+                </label>
+              )
+            })}
+          </div>
+          {watch('policyChallenges')?.includes('Others (Specify)') && (
+            <div className="mt-3">
+              <label className="form-label block mb-2">
+                Please specify the other challenges you face:
               </label>
-            ))}
-          </div>
-          <div className="mt-3">
-            <label className="form-label block mb-2">
-              If you selected "Others (Specify)", please provide details:
-            </label>
-            <textarea
-              {...register('policyChallengesOther')}
-              rows={3}
-              placeholder="Please specify the other challenges you face"
-              className="form-textarea w-full"
-            />
-          </div>
+              <textarea
+                {...register('policyChallengesOther')}
+                rows={3}
+                placeholder="Please specify the other challenges you face"
+                className="form-textarea w-full"
+              />
+            </div>
+          )}
           {errors.policyChallenges && (
             <p className="form-error mt-2">{errors.policyChallenges.message}</p>
           )}
