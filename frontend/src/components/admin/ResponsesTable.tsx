@@ -42,6 +42,7 @@ const ResponsesTable: React.FC<ResponsesTableProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleViewResponse = (response: Response) => {
+    console.log('Eye icon clicked, opening response:', response.id)
     setSelectedResponse(response)
     setIsModalOpen(true)
   }
@@ -118,7 +119,14 @@ const ResponsesTable: React.FC<ResponsesTableProps> = ({
                     {(() => {
                       const trainings = Array.isArray(response.urgentTrainings) 
                         ? response.urgentTrainings 
-                        : JSON.parse(response.urgentTrainings || '[]')
+                        : (() => {
+                            try {
+                              const parsed = JSON.parse(response.urgentTrainings || '[]')
+                              return Array.isArray(parsed) ? parsed : []
+                            } catch {
+                              return response.urgentTrainings ? response.urgentTrainings.split(',').map(item => item.trim()) : []
+                            }
+                          })()
                       return trainings.slice(0, 2).map((training, index) => (
                         <span key={index} className="inline-block bg-secondary-100 text-secondary-800 text-xs px-2 py-1 rounded mr-1 mb-1">
                           {training}
@@ -128,7 +136,14 @@ const ResponsesTable: React.FC<ResponsesTableProps> = ({
                     {(() => {
                       const trainings = Array.isArray(response.urgentTrainings) 
                         ? response.urgentTrainings 
-                        : JSON.parse(response.urgentTrainings || '[]')
+                        : (() => {
+                            try {
+                              const parsed = JSON.parse(response.urgentTrainings || '[]')
+                              return Array.isArray(parsed) ? parsed : []
+                            } catch {
+                              return response.urgentTrainings ? response.urgentTrainings.split(',').map(item => item.trim()) : []
+                            }
+                          })()
                       return trainings.length > 2 && (
                         <span className="text-xs text-secondary-500">
                           +{trainings.length - 2} more

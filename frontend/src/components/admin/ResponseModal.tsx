@@ -45,9 +45,17 @@ const ResponseModal: React.FC<ResponseModalProps> = ({ response, isOpen, onClose
     if (Array.isArray(field)) return field
     if (typeof field === 'string') {
       try {
-        return JSON.parse(field)
-      } catch {
+        // First try to parse as JSON array
+        const parsed = JSON.parse(field)
+        if (Array.isArray(parsed)) return parsed
         return []
+      } catch {
+        // If JSON parsing fails, check if it's a comma-separated string
+        if (field.includes(',')) {
+          return field.split(',').map(item => item.trim()).filter(item => item.length > 0)
+        }
+        // If it's a single item, return as array
+        return field.trim() ? [field.trim()] : []
       }
     }
     return []
