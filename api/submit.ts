@@ -74,9 +74,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Validate request body
+    console.log('API: Validating request body...')
+    console.log('API: Request body keys:', Object.keys(req.body))
+    console.log('API: prioritizedPolicies type:', typeof req.body.prioritizedPolicies, Array.isArray(req.body.prioritizedPolicies))
+    console.log('API: policyChallenges type:', typeof req.body.policyChallenges, Array.isArray(req.body.policyChallenges))
+    
     const validationResult = surveyResponseSchema.safeParse(req.body)
     
     if (!validationResult.success) {
+      console.error('API: Validation failed with errors:', validationResult.error.errors)
       return res.status(400).json({
         error: 'Invalid request data',
         details: validationResult.error.errors

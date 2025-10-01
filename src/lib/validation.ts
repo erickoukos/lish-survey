@@ -134,6 +134,7 @@ export const policyChallengesEnum = z.enum([
   'Others (Specify)'
 ])
 
+// Updated validation schema for Section J array fields
 export const surveyResponseSchema = z.object({
   department: departmentEnum,
   awareness: awarenessSchema,
