@@ -33,7 +33,7 @@ const Header: React.FC = () => {
               Survey
             </Link>
             
-            {user ? (
+            {user && (
               <>
                 <Link
                   to="/admin"
@@ -48,13 +48,6 @@ const Header: React.FC = () => {
                   Logout
                 </button>
               </>
-            ) : (
-              <Link
-                to="/login"
-                className="btn-primary px-4 py-2"
-              >
-                Admin Login
-              </Link>
             )}
           </nav>
         </div>
