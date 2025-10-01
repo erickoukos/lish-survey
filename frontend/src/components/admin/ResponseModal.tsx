@@ -23,9 +23,10 @@ interface Response {
   trainingMethod: string
   trainingMethodOther?: string
   refresherFrequency: string
-  prioritizedPolicies?: string
+  prioritizedPolicies?: string[] | string
   prioritizationReason?: string
-  policyChallenges?: string
+  policyChallenges?: string[] | string
+  policyChallengesOther?: string
   complianceSuggestions?: string
   generalComments?: string
   createdAt: string
@@ -70,6 +71,8 @@ const ResponseModal: React.FC<ResponseModalProps> = ({ response, isOpen, onClose
   const digitalSkillsNeeds = parseArrayField(response.digitalSkillsNeeds)
   const professionalDevNeeds = parseArrayField(response.professionalDevNeeds)
   const observedIssues = parseArrayField(response.observedIssues)
+  const prioritizedPolicies = parseArrayField(response.prioritizedPolicies)
+  const policyChallenges = parseArrayField(response.policyChallenges)
 
   const awarenessLabels = {
     antiSocialBehavior: 'Anti-Social Behavior Policy',
@@ -297,14 +300,20 @@ const ResponseModal: React.FC<ResponseModalProps> = ({ response, isOpen, onClose
           </div>
 
           {/* Open Feedback */}
-          {(response.prioritizedPolicies || response.prioritizationReason || response.policyChallenges || response.complianceSuggestions || response.generalComments) && (
+          {(prioritizedPolicies.length > 0 || response.prioritizationReason || policyChallenges.length > 0 || response.complianceSuggestions || response.generalComments) && (
             <div>
               <h3 className="text-lg font-medium text-secondary-900 mb-4">Open Feedback</h3>
               <div className="space-y-4">
-                {response.prioritizedPolicies && (
+                {prioritizedPolicies.length > 0 && (
                   <div>
                     <label className="text-sm font-medium text-secondary-600">Prioritized Policies</label>
-                    <p className="text-sm text-secondary-900 bg-secondary-50 p-3 rounded">{response.prioritizedPolicies}</p>
+                    <div className="space-y-1">
+                      {prioritizedPolicies.map((policy, index) => (
+                        <span key={index} className="block text-sm text-secondary-700 bg-primary-100 text-primary-800 px-3 py-2 rounded">
+                          {policy}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {response.prioritizationReason && (
@@ -313,10 +322,22 @@ const ResponseModal: React.FC<ResponseModalProps> = ({ response, isOpen, onClose
                     <p className="text-sm text-secondary-900 bg-secondary-50 p-3 rounded">{response.prioritizationReason}</p>
                   </div>
                 )}
-                {response.policyChallenges && (
+                {policyChallenges.length > 0 && (
                   <div>
                     <label className="text-sm font-medium text-secondary-600">Policy Challenges</label>
-                    <p className="text-sm text-secondary-900 bg-secondary-50 p-3 rounded">{response.policyChallenges}</p>
+                    <div className="space-y-1">
+                      {policyChallenges.map((challenge, index) => (
+                        <span key={index} className="block text-sm text-secondary-700 bg-red-100 text-red-800 px-3 py-2 rounded">
+                          {challenge}
+                        </span>
+                      ))}
+                    </div>
+                    {response.policyChallengesOther && (
+                      <div className="mt-2">
+                        <label className="text-sm font-medium text-secondary-600">Other Challenges:</label>
+                        <p className="text-sm text-secondary-900 bg-secondary-50 p-3 rounded">{response.policyChallengesOther}</p>
+                      </div>
+                    )}
                   </div>
                 )}
                 {response.complianceSuggestions && (

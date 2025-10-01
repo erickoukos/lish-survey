@@ -25,12 +25,30 @@ const SectionJ: React.FC<SectionJProps> = ({ form }) => {
           <label className="form-label block mb-2">
             Q14. Which policies do you think should be prioritized for training and awareness? <span className="text-red-500">*</span>
           </label>
-          <textarea
-            {...register('prioritizedPolicies', { required: 'Please specify which policies should be prioritized' })}
-            rows={4}
-            placeholder="Please list the policies you think should be prioritized for training and awareness"
-            className="form-textarea w-full"
-          />
+          <div className="space-y-2">
+            {[
+              'Anti-Social Behavior Policy',
+              'Anti-Discrimination Policy',
+              'Sexual and Other forms of harassment Policy',
+              'Safeguarding Policy',
+              'HR Policy Manual',
+              'Code of Conduct',
+              'Finance & Financial Wellness Policy',
+              'Work-Life Balance & Mental Health Policy',
+              'Digital Workplace & Skills Policy',
+              'Soft Skills Development Policy'
+            ].map((policy) => (
+              <label key={policy} className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  value={policy}
+                  {...register('prioritizedPolicies')}
+                  className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                />
+                <span className="text-sm text-secondary-700">{policy}</span>
+              </label>
+            ))}
+          </div>
           {errors.prioritizedPolicies && (
             <p className="form-error mt-2">{errors.prioritizedPolicies.message}</p>
           )}
@@ -55,12 +73,41 @@ const SectionJ: React.FC<SectionJProps> = ({ form }) => {
           <label className="form-label block mb-2">
             Q16. What challenges do you face in understanding or applying workplace policies? <span className="text-red-500">*</span>
           </label>
-          <textarea
-            {...register('policyChallenges', { required: 'Please describe the challenges you face' })}
-            rows={4}
-            placeholder="Please describe any challenges you face in understanding or applying workplace policies"
-            className="form-textarea w-full"
-          />
+          <div className="space-y-2">
+            {[
+              'Policies are too complex or difficult to understand',
+              'Lack of clear examples or case studies',
+              'Insufficient training on policy implementation',
+              'Policies are not easily accessible or well-organized',
+              'Conflicting information between different policies',
+              'Language barriers or technical jargon',
+              'Lack of regular updates or communication about policy changes',
+              'Unclear consequences or enforcement procedures',
+              'Limited time to read and understand all policies',
+              'Others (Specify)'
+            ].map((challenge) => (
+              <label key={challenge} className="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  value={challenge}
+                  {...register('policyChallenges')}
+                  className="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+                />
+                <span className="text-sm text-secondary-700">{challenge}</span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-3">
+            <label className="form-label block mb-2">
+              If you selected "Others (Specify)", please provide details:
+            </label>
+            <textarea
+              {...register('policyChallengesOther')}
+              rows={3}
+              placeholder="Please specify the other challenges you face"
+              className="form-textarea w-full"
+            />
+          </div>
           {errors.policyChallenges && (
             <p className="form-error mt-2">{errors.policyChallenges.message}</p>
           )}
