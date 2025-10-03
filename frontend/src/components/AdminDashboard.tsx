@@ -45,6 +45,10 @@ const AdminDashboard: React.FC = () => {
     setFilters(prev => ({ ...prev, ...newFilters, page: 1 }))
   }
 
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({ ...prev, page }))
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -130,7 +134,7 @@ const AdminDashboard: React.FC = () => {
                 data={responsesData?.data || []} 
                 pagination={responsesData?.pagination}
                 isLoading={isLoading}
-                onPageChange={(page) => handleFilterChange({ page })}
+                onPageChange={handlePageChange}
               />
             </div>
           </div>
