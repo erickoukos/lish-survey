@@ -41,8 +41,8 @@ const SurveyConfig: React.FC = () => {
     return date.toISOString()
   }
 
-  // Helper function to calculate end date (7 days after start date)
-  const calculateEndDate = (startDate: string) => {
+  // Helper function to calculate default end date (7 days after start date)
+  const calculateDefaultEndDate = (startDate: string) => {
     const start = new Date(startDate)
     const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days later
     return end.toISOString()
@@ -199,11 +199,9 @@ const SurveyConfig: React.FC = () => {
               value={toDateTimeLocal(config.startDate)}
               onChange={(e) => {
                 const newStartDate = fromDateTimeLocal(e.target.value)
-                const newEndDate = calculateEndDate(newStartDate)
                 setConfig({ 
                   ...config, 
-                  startDate: newStartDate,
-                  endDate: newEndDate
+                  startDate: newStartDate
                 })
               }}
               className="form-input w-full"
@@ -214,15 +212,28 @@ const SurveyConfig: React.FC = () => {
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               End Date & Time
-              <span className="text-xs text-blue-600 ml-2">(Automatically set to 7 days after start date)</span>
+              <span className="text-xs text-blue-600 ml-2">(Set custom end date - no 7-day limit)</span>
             </label>
-            <input
-              type="datetime-local"
-              value={toDateTimeLocal(config.endDate)}
-              onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
-              className="form-input w-full bg-gray-50"
-              title="End date is automatically calculated as 7 days after start date"
-            />
+            <div className="flex gap-2">
+              <input
+                type="datetime-local"
+                value={toDateTimeLocal(config.endDate)}
+                onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
+                className="form-input flex-1"
+                title="Set custom end date - you can extend beyond 7 days"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultEndDate = calculateDefaultEndDate(config.startDate)
+                  setConfig({ ...config, endDate: defaultEndDate })
+                }}
+                className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                title="Set to 7 days after start date"
+              >
+                7 Days
+              </button>
+            </div>
           </div>
         </div>
 
