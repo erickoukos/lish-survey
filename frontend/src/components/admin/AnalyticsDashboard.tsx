@@ -1,6 +1,6 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { adminApi } from '../../lib/api'
+import { adminApi, surveyApi } from '../../lib/api'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area, ScatterChart, Scatter } from 'recharts'
 import { Users, TrendingUp, Target, CheckCircle, AlertTriangle, Award, BarChart3, PieChart as PieChartIcon, Activity } from 'lucide-react'
 
@@ -8,6 +8,11 @@ const AnalyticsDashboard: React.FC = () => {
   const { data: responsesData } = useQuery({
     queryKey: ['responses', { page: 1, limit: 1000 }],
     queryFn: () => adminApi.getResponses({ page: 1, limit: 1000 })
+  })
+
+  const { data: surveyConfig } = useQuery({
+    queryKey: ['survey-config'],
+    queryFn: () => surveyApi.getSurveyConfig()
   })
 
   const responses = responsesData?.data || []
@@ -101,6 +106,8 @@ const AnalyticsDashboard: React.FC = () => {
   const CHART_COLORS = [COLORS.primary, COLORS.success, COLORS.warning, COLORS.danger, COLORS.purple, COLORS.teal, COLORS.orange, COLORS.pink, COLORS.indigo, COLORS.emerald]
 
   const totalResponses = responses.length
+  const expectedResponses = surveyConfig?.config?.expectedResponses || 100
+  const progressPercentage = expectedResponses > 0 ? Math.min((totalResponses / expectedResponses) * 100, 100) : 0
   
   // Enhanced awareness calculation
   const awarenessScores = responses.map((r: any) => {
@@ -249,11 +256,18 @@ const AnalyticsDashboard: React.FC = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-blue-700">Total Responses</p>
                   <p className="text-2xl font-bold text-blue-900">{totalResponses}</p>
+                  <p className="text-xs text-blue-600">of {expectedResponses} expected</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-blue-600 font-medium">Completion Rate</div>
-                <div className="text-lg font-semibold text-blue-800">{completionRate}%</div>
+                <div className="text-xs text-blue-600 font-medium">Progress</div>
+                <div className="text-lg font-semibold text-blue-800">{progressPercentage.toFixed(0)}%</div>
+                <div className="w-16 h-2 bg-blue-200 rounded-full mt-1">
+                  <div 
+                    className="h-2 bg-blue-500 rounded-full transition-all duration-300" 
+                    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>

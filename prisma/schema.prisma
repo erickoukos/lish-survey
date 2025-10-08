@@ -51,6 +51,7 @@ model SurveyConfig {
   endDate           DateTime
   title             String   @default("Policy Awareness Survey")
   description       String?
+  expectedResponses Int      @default(100)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

@@ -10,6 +10,7 @@ interface SurveyConfig {
   endDate: string
   title: string
   description?: string
+  expectedResponses: number
   createdAt: string
   updatedAt: string
 }
@@ -248,6 +249,25 @@ const SurveyConfig: React.FC = () => {
             className="form-textarea w-full"
             placeholder="Survey description"
           />
+        </div>
+
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-secondary-700 mb-2">
+            <Settings className="w-4 h-4 inline mr-1" />
+            Expected Responses
+            <span className="text-xs text-blue-600 ml-2">(Target number of participants)</span>
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={config.expectedResponses}
+            onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
+            className="form-input w-32"
+            placeholder="100"
+          />
+          <p className="text-xs text-secondary-500 mt-1">
+            This helps track progress towards your survey goals
+          </p>
         </div>
 
         <div className="mt-8 pt-6 border-t border-secondary-200">

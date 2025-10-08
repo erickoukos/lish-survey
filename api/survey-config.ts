@@ -8,7 +8,8 @@ const surveyConfigSchema = z.object({
   startDate: z.string().datetime(),
   endDate: z.string().datetime(),
   title: z.string().optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
+  expectedResponses: z.number().min(1).optional()
 })
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -39,7 +40,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               startDate: startDate,
               endDate: endDate,
               title: 'Policy Awareness Survey',
-              description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+              description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+              expectedResponses: 100
             }
           })
 
@@ -143,7 +145,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               startDate: startDate,
               endDate: endDate,
               title: data.title || 'Policy Awareness Survey',
-              description: data.description
+              description: data.description,
+              expectedResponses: data.expectedResponses || 100
             }
           })
           console.log('Configuration updated successfully')
@@ -157,7 +160,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               startDate: startDate,
               endDate: endDate,
               title: data.title || 'Policy Awareness Survey',
-              description: data.description
+              description: data.description,
+              expectedResponses: data.expectedResponses || 100
             }
           })
           console.log('Configuration created successfully')
