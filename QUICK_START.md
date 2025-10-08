@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide - LISH AI LABS Policy Survey
+# Quick Start Guide - LISH AI LABS Policy Survey
 
 ## **Current Status: ✅ SERVERS RUNNING**
 
