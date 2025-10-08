@@ -599,7 +599,7 @@ const AnalyticsDashboard: React.FC = () => {
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                     <div>
-                      <p className="text-sm font-medium text-red-800">Needs Improvement (<2.0)</p>
+                        <p className="text-sm font-medium text-red-800">Needs Improvement (&lt;2.0)</p>
                       <p className="text-lg font-bold text-red-900">
                         {enhancedAwarenessChartData.filter(item => item.average < 2).length}
                       </p>
