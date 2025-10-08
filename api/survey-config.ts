@@ -128,11 +128,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
         console.log('Existing config found:', !!existingConfig)
 
-        // Calculate end date: 7 days after start date when survey is active
+        // Use the provided dates directly
         const startDate = new Date(data.startDate)
-        const endDate = data.isActive 
-          ? new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from start date
-          : new Date(data.endDate) // Use provided end date if inactive
+        const endDate = new Date(data.endDate)
 
         let config
         if (existingConfig) {
@@ -196,7 +194,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'DELETE') {
-      // Reset all survey responses (admin only)
+      // Reset survey configuration but preserve responses (admin only)
       const authHeader = req.headers.authorization
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Authentication required' })
@@ -209,8 +207,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       try {
-        // Delete all survey responses
-        const deleteResult = await prisma.surveyResponse.deleteMany({})
+        // Get count of existing responses before reset
+        const responseCount = await prisma.surveyResponse.count()
+
+        // Create a new survey period for the reset
+        const newSurveyPeriod = `survey_${Date.now()}`
+        
+        // Update all existing responses to mark them as from previous period
+        await prisma.surveyResponse.updateMany({
+          where: { surveyPeriod: 'default' },
+          data: { surveyPeriod: newSurveyPeriod }
+        })
 
         // Reset survey configuration to default
         await prisma.surveyConfig.deleteMany({})
@@ -228,12 +235,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         })
 
-        console.log(`Survey reset by admin ${payload.username}: ${deleteResult.count} responses deleted`)
+        console.log(`Survey reset by admin ${payload.username}: Configuration reset, ${responseCount} responses moved to period ${newSurveyPeriod}`)
 
         return res.status(200).json({
           success: true,
-          message: `Survey reset successfully. ${deleteResult.count} responses deleted.`,
-          config: defaultConfig
+          message: `Survey configuration reset successfully. ${responseCount} previous responses preserved and accessible under period ${newSurveyPeriod}.`,
+          config: defaultConfig,
+          preservedResponses: responseCount,
+          previousSurveyPeriod: newSurveyPeriod
         })
       } catch (dbError) {
         console.error('Database error in survey-config DELETE:', dbError)

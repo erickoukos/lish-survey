@@ -12,6 +12,7 @@ datasource db {
 
 model SurveyResponse {
   id                        String   @id @default(uuid())
+  surveyPeriod              String   @default("default") // Track which survey period this response belongs to
   department                String
   awareness                 String   // JSON stored as string for SQLite
   urgentTrainings          String   // JSON array stored as string
