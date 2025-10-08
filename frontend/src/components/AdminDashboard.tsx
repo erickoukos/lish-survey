@@ -8,10 +8,11 @@ import ResponsesTable from './admin/ResponsesTable'
 import AnalyticsDashboard from './admin/AnalyticsDashboard'
 import SurveyConfig from './admin/SurveyConfig'
 import QuestionManager from './admin/QuestionManager'
+import DepartmentCounts from './admin/DepartmentCounts'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -102,6 +103,13 @@ const AdminDashboard: React.FC = () => {
             Questions
           </button>
           <button
+            onClick={() => setCurrentView('departments')}
+            className={`btn ${currentView === 'departments' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Departments
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary px-4 py-2"
           >
@@ -169,6 +177,10 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'questions' && (
         <QuestionManager />
+      )}
+
+      {currentView === 'departments' && (
+        <DepartmentCounts />
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Calendar, Clock, Settings, Trash2, Save, AlertTriangle } from 'lucide-react'
+import { Calendar, Clock, Settings, Trash2, Save, AlertTriangle, Users } from 'lucide-react'
 import { surveyApi } from '../../lib/api'
+import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 interface SurveyConfig {
@@ -21,6 +22,15 @@ const SurveyConfig: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+
+  // Fetch department counts to show calculated expected responses
+  const { data: departmentData } = useQuery({
+    queryKey: ['departmentCounts'],
+    queryFn: async () => {
+      const response = await fetch('/api/department-counts')
+      return response.json()
+    }
+  })
 
   // Helper function to convert date to datetime-local format
   const toDateTimeLocal = (dateString: string) => {
@@ -257,16 +267,35 @@ const SurveyConfig: React.FC = () => {
             Expected Responses
             <span className="text-xs text-blue-600 ml-2">(Target number of participants)</span>
           </label>
-          <input
-            type="number"
-            min="1"
-            value={config.expectedResponses}
-            onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
-            className="form-input w-32"
-            placeholder="100"
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              min="1"
+              value={config.expectedResponses}
+              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
+              className="form-input w-32"
+              placeholder="100"
+            />
+            {departmentData?.totalExpected && (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <Users className="w-4 h-4" />
+                <span>Auto-calculated: {departmentData.totalExpected}</span>
+                <button
+                  onClick={() => setConfig({ ...config, expectedResponses: departmentData.totalExpected })}
+                  className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                >
+                  Use Auto
+                </button>
+              </div>
+            )}
+          </div>
           <p className="text-xs text-secondary-500 mt-1">
-            This helps track progress towards your survey goals
+            This helps track progress towards your survey goals. 
+            {departmentData?.totalExpected && (
+              <span className="text-green-600 ml-1">
+                Auto-calculated from department staff counts.
+              </span>
+            )}
           </p>
         </div>
 

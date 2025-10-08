@@ -89,3 +89,14 @@ model SurveySection {
 
   @@map("survey_sections")
 }
+
+model DepartmentCount {
+  id                String   @id @default(uuid())
+  department        String   @unique
+  staffCount        Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("department_counts")
+}
