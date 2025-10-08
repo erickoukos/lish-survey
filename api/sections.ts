@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../src/lib/prisma'
 import { z } from 'zod'
-import { cors } from '../src/lib/cors'
+import { handleCors } from '../src/lib/cors'
 
 // Validation schema
 const sectionSchema = z.object({
@@ -14,7 +14,8 @@ const sectionSchema = z.object({
 
 // GET /api/sections - Get all sections
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await cors(req, res)
+  // Handle CORS
+  if (handleCors(req, res)) return
 
   if (req.method === 'GET') {
     try {
@@ -36,10 +37,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           }
         })
-      } catch (tableError) {
-        // If table doesn't exist, return default sections
-        console.log('SurveySection table not found, returning default sections')
-        sections = [
+        
+        // If no sections found, return default sections
+        if (sections.length === 0) {
+          console.log('No sections found in database, returning default sections')
+          sections = [
           {
             id: 'default-a',
             sectionKey: 'A',
@@ -131,6 +133,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             questions: []
           }
         ]
+        }
       }
 
       res.status(200).json({ success: true, data: sections })
@@ -224,8 +227,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Check if section has questions
+      const section = await prisma.surveySection.findUnique({ where: { id } })
+      if (!section) {
+        return res.status(404).json({ success: false, error: 'Section not found' })
+      }
+      
       const questionsCount = await prisma.surveyQuestion.count({
-        where: { section: { in: await prisma.surveySection.findUnique({ where: { id } }).then(s => s ? [s.sectionKey] : []) } }
+        where: { section: section.sectionKey }
       })
 
       if (questionsCount > 0) {

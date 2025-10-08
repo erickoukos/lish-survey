@@ -73,6 +73,9 @@ model SurveyQuestion {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+  // Relations
+  sectionRef        SurveySection? @relation(fields: [section], references: [sectionKey])
+
   @@map("survey_questions")
   @@unique([section, questionNumber])
 }
@@ -86,6 +89,9 @@ model SurveySection {
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  // Relations
+  questions         SurveyQuestion[]
 
   @@map("survey_sections")
 }

@@ -40,13 +40,11 @@ const DepartmentCounts: React.FC = () => {
   const { data: departmentData, isLoading, error } = useQuery<DepartmentCountsResponse>({
     queryKey: ['departmentCounts'],
     queryFn: async () => {
-      // For now, return mock data since API doesn't exist yet
-      return {
-        success: true,
-        data: [],
-        totalExpected: 0,
-        count: 0
+      const response = await fetch('/api/department-counts')
+      if (!response.ok) {
+        throw new Error('Failed to fetch department counts')
       }
+      return response.json()
     }
   })
 
@@ -63,9 +61,17 @@ const DepartmentCounts: React.FC = () => {
   // Save department counts mutation
   const saveMutation = useMutation({
     mutationFn: async (deptData: Omit<DepartmentCount, 'id' | 'isActive'>[]) => {
-      // Mock API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      return { success: true, data: deptData }
+      const response = await fetch('/api/department-counts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ departments: deptData })
+      })
+      if (!response.ok) {
+        throw new Error('Failed to save department counts')
+      }
+      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['departmentCounts'] })
