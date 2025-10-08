@@ -81,10 +81,21 @@ export const adminApi = {
   },
   
   exportResponses: async () => {
-    const response = await api.get('/api/export', {
-      responseType: 'blob'
-    })
-    return response.data
+    try {
+      const response = await api.get('/api/export', {
+        responseType: 'blob',
+        timeout: 30000 // 30 second timeout
+      })
+      return response.data
+    } catch (error: any) {
+      console.error('Export API Error:', error)
+      if (error.response?.data) {
+        // If the response contains error data, throw a more descriptive error
+        const errorMessage = error.response.data.message || error.response.data.error || 'Export failed'
+        throw new Error(errorMessage)
+      }
+      throw new Error('Export failed. Please try again.')
+    }
   }
 }
 

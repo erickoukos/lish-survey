@@ -26,7 +26,14 @@ const AdminDashboard: React.FC = () => {
 
   const handleExport = async () => {
     try {
+      toast.loading('Preparing export...', { id: 'export' })
       const blob = await adminApi.exportResponses()
+      
+      // Check if blob is valid
+      if (!blob || blob.size === 0) {
+        throw new Error('Export returned empty data')
+      }
+      
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -35,9 +42,12 @@ const AdminDashboard: React.FC = () => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      toast.success('Export completed successfully!')
-    } catch (error) {
-      toast.error('Export failed. Please try again.')
+      
+      toast.success('Export completed successfully!', { id: 'export' })
+    } catch (error: any) {
+      console.error('Export error:', error)
+      const errorMessage = error.message || 'Export failed. Please try again.'
+      toast.error(errorMessage, { id: 'export' })
     }
   }
 
