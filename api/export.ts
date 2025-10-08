@@ -2,7 +2,6 @@ import { VercelRequest, VercelResponse } from '@vercel/node'
 import { prisma } from '../src/lib/prisma'
 import { verifyToken } from '../src/lib/auth'
 import { handleCors } from '../src/lib/cors'
-import { createObjectCsvWriter } from 'csv-writer'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Handle CORS
@@ -20,9 +19,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    console.log('Export API: Starting export process')
+    
     // Check authentication
     const authHeader = req.headers.authorization
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('Export API: No valid auth header')
       return res.status(401).json({ error: 'Authentication required' })
     }
 
@@ -30,24 +32,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = verifyToken(token)
     
     if (!payload) {
+      console.log('Export API: Invalid token')
       return res.status(401).json({ error: 'Invalid token' })
     }
+
+    console.log(`Export API: Authenticated user: ${payload.username}`)
 
     // Get all responses
     let responses = []
     try {
+      console.log('Export API: Fetching responses from database')
       responses = await prisma.surveyResponse.findMany({
         orderBy: { createdAt: 'desc' }
       })
+      console.log(`Export API: Found ${responses.length} responses`)
     } catch (dbError) {
-      console.error('Database error in export API:', dbError)
-      return res.status(200).json({
+      console.error('Export API: Database error:', dbError)
+      return res.status(500).json({
         error: 'Database not available',
         message: 'Cannot export responses - database not available'
       })
     }
 
     // Transform data for CSV
+    console.log('Export API: Transforming data for CSV')
     const csvData = responses.map(response => {
       const awareness = response.awareness as any
       return {
@@ -91,55 +99,78 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     })
 
-    // Create CSV
-    const csvWriter = createObjectCsvWriter({
-      path: '/tmp/survey_responses.csv',
-      header: [
-        { id: 'id', title: 'ID' },
-        { id: 'timestamp', title: 'Timestamp' },
-        { id: 'department', title: 'Department' },
-        { id: 'anti_social_behavior_awareness', title: 'Anti-Social Behavior Awareness' },
-        { id: 'anti_discrimination_awareness', title: 'Anti-Discrimination Awareness' },
-        { id: 'sexual_harassment_awareness', title: 'Sexual Harassment Awareness' },
-        { id: 'safeguarding_awareness', title: 'Safeguarding Awareness' },
-        { id: 'hr_policy_manual_awareness', title: 'HR Policy Manual Awareness' },
-        { id: 'code_of_conduct_awareness', title: 'Code of Conduct Awareness' },
-        { id: 'finance_wellness_awareness', title: 'Finance Wellness Awareness' },
-        { id: 'work_life_balance_awareness', title: 'Work-Life Balance Awareness' },
-        { id: 'digital_workplace_awareness', title: 'Digital Workplace Awareness' },
-        { id: 'soft_skills_awareness', title: 'Soft Skills Awareness' },
-        { id: 'professionalism_awareness', title: 'Professionalism Awareness' },
-        { id: 'urgent_trainings', title: 'Urgent Trainings' },
-        { id: 'urgent_trainings_other', title: 'Urgent Trainings Other' },
-        { id: 'finance_wellness_needs', title: 'Finance Wellness Needs' },
-        { id: 'culture_wellness_needs', title: 'Culture Wellness Needs' },
-        { id: 'culture_wellness_other', title: 'Culture Wellness Other' },
-        { id: 'digital_skills_needs', title: 'Digital Skills Needs' },
-        { id: 'digital_skills_other', title: 'Digital Skills Other' },
-        { id: 'professional_dev_needs', title: 'Professional Development Needs' },
-        { id: 'professional_dev_other', title: 'Professional Development Other' },
-        { id: 'confidence_level', title: 'Confidence Level' },
-        { id: 'faced_unsure_situation', title: 'Faced Unsure Situation' },
-        { id: 'unsure_situation_description', title: 'Unsure Situation Description' },
-        { id: 'observed_issues', title: 'Observed Issues' },
-        { id: 'observed_issues_other', title: 'Observed Issues Other' },
-        { id: 'knew_reporting_channel', title: 'Knew Reporting Channel' },
-        { id: 'training_method', title: 'Training Method' },
-        { id: 'training_method_other', title: 'Training Method Other' },
-        { id: 'refresher_frequency', title: 'Refresher Frequency' },
-        { id: 'prioritized_policies', title: 'Prioritized Policies' },
-        { id: 'prioritization_reason', title: 'Prioritization Reason' },
-        { id: 'policy_challenges', title: 'Policy Challenges' },
-        { id: 'compliance_suggestions', title: 'Compliance Suggestions' },
-        { id: 'general_comments', title: 'General Comments' }
+    // Generate CSV content in memory
+    const headers = [
+      'ID', 'Timestamp', 'Department', 'Anti-Social Behavior Awareness', 'Anti-Discrimination Awareness',
+      'Sexual Harassment Awareness', 'Safeguarding Awareness', 'HR Policy Manual Awareness',
+      'Code of Conduct Awareness', 'Finance Wellness Awareness', 'Work-Life Balance Awareness',
+      'Digital Workplace Awareness', 'Soft Skills Awareness', 'Professionalism Awareness',
+      'Urgent Trainings', 'Urgent Trainings Other', 'Finance Wellness Needs', 'Culture Wellness Needs',
+      'Culture Wellness Other', 'Digital Skills Needs', 'Digital Skills Other',
+      'Professional Development Needs', 'Professional Development Other', 'Confidence Level',
+      'Faced Unsure Situation', 'Unsure Situation Description', 'Observed Issues', 'Observed Issues Other',
+      'Knew Reporting Channel', 'Training Method', 'Training Method Other', 'Refresher Frequency',
+      'Prioritized Policies', 'Prioritization Reason', 'Policy Challenges', 'Compliance Suggestions',
+      'General Comments'
+    ]
+
+    // Escape CSV values
+    const escapeCsvValue = (value: any) => {
+      if (value === null || value === undefined) return ''
+      const stringValue = String(value)
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`
+      }
+      return stringValue
+    }
+
+    // Generate CSV content
+    const csvRows = [headers.join(',')]
+    csvData.forEach(row => {
+      const values = [
+        escapeCsvValue(row.id),
+        escapeCsvValue(row.timestamp),
+        escapeCsvValue(row.department),
+        escapeCsvValue(row.anti_social_behavior_awareness),
+        escapeCsvValue(row.anti_discrimination_awareness),
+        escapeCsvValue(row.sexual_harassment_awareness),
+        escapeCsvValue(row.safeguarding_awareness),
+        escapeCsvValue(row.hr_policy_manual_awareness),
+        escapeCsvValue(row.code_of_conduct_awareness),
+        escapeCsvValue(row.finance_wellness_awareness),
+        escapeCsvValue(row.work_life_balance_awareness),
+        escapeCsvValue(row.digital_workplace_awareness),
+        escapeCsvValue(row.soft_skills_awareness),
+        escapeCsvValue(row.professionalism_awareness),
+        escapeCsvValue(row.urgent_trainings),
+        escapeCsvValue(row.urgent_trainings_other),
+        escapeCsvValue(row.finance_wellness_needs),
+        escapeCsvValue(row.culture_wellness_needs),
+        escapeCsvValue(row.culture_wellness_other),
+        escapeCsvValue(row.digital_skills_needs),
+        escapeCsvValue(row.digital_skills_other),
+        escapeCsvValue(row.professional_dev_needs),
+        escapeCsvValue(row.professional_dev_other),
+        escapeCsvValue(row.confidence_level),
+        escapeCsvValue(row.faced_unsure_situation),
+        escapeCsvValue(row.unsure_situation_description),
+        escapeCsvValue(row.observed_issues),
+        escapeCsvValue(row.observed_issues_other),
+        escapeCsvValue(row.knew_reporting_channel),
+        escapeCsvValue(row.training_method),
+        escapeCsvValue(row.training_method_other),
+        escapeCsvValue(row.refresher_frequency),
+        escapeCsvValue(row.prioritized_policies),
+        escapeCsvValue(row.prioritization_reason),
+        escapeCsvValue(row.policy_challenges),
+        escapeCsvValue(row.compliance_suggestions),
+        escapeCsvValue(row.general_comments)
       ]
+      csvRows.push(values.join(','))
     })
 
-    await csvWriter.writeRecords(csvData)
-
-    // Read the CSV file and send as response
-    const fs = require('fs')
-    const csvContent = fs.readFileSync('/tmp/survey_responses.csv', 'utf8')
+    const csvContent = csvRows.join('\n')
+    console.log(`Export API: Generated CSV with ${csvRows.length} rows`)
 
     console.log(`Admin ${payload.username} exported ${responses.length} responses`)
 
@@ -148,11 +179,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).send(csvContent)
 
   } catch (error) {
-    console.error('Error exporting responses:', error)
+    console.error('Export API: Unexpected error:', error)
+    console.error('Export API: Error details:', JSON.stringify(error, null, 2))
     
     return res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to export responses'
+      message: 'Failed to export responses',
+      details: error instanceof Error ? error.message : 'Unknown error'
     })
   }
 }
