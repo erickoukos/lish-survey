@@ -57,7 +57,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Transform data for CSV
     console.log('Export API: Transforming data for CSV')
     const csvData = responses.map(response => {
-      const awareness = response.awareness as any
+      // Helper function to safely parse JSON
+      const safeJsonParse = (jsonString: any, fallback: any[] = []) => {
+        if (!jsonString) return fallback
+        if (Array.isArray(jsonString)) return jsonString
+        try {
+          const parsed = JSON.parse(jsonString)
+          return Array.isArray(parsed) ? parsed : fallback
+        } catch (error) {
+          console.warn('Failed to parse JSON:', jsonString, error)
+          return fallback
+        }
+      }
+
+      // Helper function to safely parse awareness data
+      const safeAwarenessParse = (awarenessString: any) => {
+        if (!awarenessString) return {}
+        if (typeof awarenessString === 'object') return awarenessString
+        try {
+          return JSON.parse(awarenessString)
+        } catch (error) {
+          console.warn('Failed to parse awareness JSON:', awarenessString, error)
+          return {}
+        }
+      }
+
+      const awareness = safeAwarenessParse(response.awareness)
+      
       return {
         id: response.id,
         timestamp: response.createdAt.toISOString(),
@@ -73,27 +99,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'digital_workplace_awareness': awareness?.digitalWorkplace || '',
         'soft_skills_awareness': awareness?.softSkills || '',
         'professionalism_awareness': awareness?.professionalism || '',
-        urgent_trainings: response.urgentTrainings ? (typeof response.urgentTrainings === 'string' ? JSON.parse(response.urgentTrainings) : response.urgentTrainings).join('; ') : '',
+        urgent_trainings: safeJsonParse(response.urgentTrainings).join('; '),
         urgent_trainings_other: response.urgentTrainingsOther || '',
-        finance_wellness_needs: response.financeWellnessNeeds ? (typeof response.financeWellnessNeeds === 'string' ? JSON.parse(response.financeWellnessNeeds) : response.financeWellnessNeeds).join('; ') : '',
-        culture_wellness_needs: response.cultureWellnessNeeds ? (typeof response.cultureWellnessNeeds === 'string' ? JSON.parse(response.cultureWellnessNeeds) : response.cultureWellnessNeeds).join('; ') : '',
+        finance_wellness_needs: safeJsonParse(response.financeWellnessNeeds).join('; '),
+        culture_wellness_needs: safeJsonParse(response.cultureWellnessNeeds).join('; '),
         culture_wellness_other: response.cultureWellnessOther || '',
-        digital_skills_needs: response.digitalSkillsNeeds ? (typeof response.digitalSkillsNeeds === 'string' ? JSON.parse(response.digitalSkillsNeeds) : response.digitalSkillsNeeds).join('; ') : '',
+        digital_skills_needs: safeJsonParse(response.digitalSkillsNeeds).join('; '),
         digital_skills_other: response.digitalSkillsOther || '',
-        professional_dev_needs: response.professionalDevNeeds ? (typeof response.professionalDevNeeds === 'string' ? JSON.parse(response.professionalDevNeeds) : response.professionalDevNeeds).join('; ') : '',
+        professional_dev_needs: safeJsonParse(response.professionalDevNeeds).join('; '),
         professional_dev_other: response.professionalDevOther || '',
         confidence_level: response.confidenceLevel,
         faced_unsure_situation: response.facedUnsureSituation,
         unsure_situation_description: response.unsureSituationDescription || '',
-        observed_issues: response.observedIssues ? (typeof response.observedIssues === 'string' ? JSON.parse(response.observedIssues) : response.observedIssues).join('; ') : '',
+        observed_issues: safeJsonParse(response.observedIssues).join('; '),
         observed_issues_other: response.observedIssuesOther || '',
         knew_reporting_channel: response.knewReportingChannel,
         training_method: response.trainingMethod,
         training_method_other: response.trainingMethodOther || '',
         refresher_frequency: response.refresherFrequency,
-        prioritized_policies: response.prioritizedPolicies ? (typeof response.prioritizedPolicies === 'string' ? JSON.parse(response.prioritizedPolicies) : response.prioritizedPolicies).join('; ') : '',
+        prioritized_policies: safeJsonParse(response.prioritizedPolicies).join('; '),
         prioritization_reason: response.prioritizationReason || '',
-        policy_challenges: response.policyChallenges ? (typeof response.policyChallenges === 'string' ? JSON.parse(response.policyChallenges) : response.policyChallenges).join('; ') : '',
+        policy_challenges: safeJsonParse(response.policyChallenges).join('; '),
         compliance_suggestions: response.complianceSuggestions || '',
         general_comments: response.generalComments || ''
       }
