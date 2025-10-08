@@ -48,6 +48,55 @@ export const surveyApi = {
     return response.data
   },
 
+  // Question management
+  getQuestions: async (params?: { section?: string; active?: boolean }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.section) queryParams.append('section', params.section)
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString())
+    
+    const response = await api.get(`/api/questions?${queryParams.toString()}`)
+    return response.data
+  },
+
+  createQuestion: async (data: any) => {
+    const response = await api.post('/api/questions', data)
+    return response.data
+  },
+
+  updateQuestion: async (id: string, data: any) => {
+    const response = await api.put('/api/questions', { id, ...data })
+    return response.data
+  },
+
+  deleteQuestion: async (id: string) => {
+    const response = await api.delete(`/api/questions?id=${id}`)
+    return response.data
+  },
+
+  // Section management
+  getSections: async (params?: { active?: boolean }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString())
+    
+    const response = await api.get(`/api/sections?${queryParams.toString()}`)
+    return response.data
+  },
+
+  createSection: async (data: any) => {
+    const response = await api.post('/api/sections', data)
+    return response.data
+  },
+
+  updateSection: async (id: string, data: any) => {
+    const response = await api.put('/api/sections', { id, ...data })
+    return response.data
+  },
+
+  deleteSection: async (id: string) => {
+    const response = await api.delete(`/api/sections?id=${id}`)
+    return response.data
+  },
+
   updateSurveyConfig: async (config: any) => {
     const response = await api.post('/api/survey-config', config)
     return response.data

@@ -7,10 +7,11 @@ import { Download, Filter, Search, BarChart3, Users, TrendingUp } from 'lucide-r
 import ResponsesTable from './admin/ResponsesTable'
 import AnalyticsDashboard from './admin/AnalyticsDashboard'
 import SurveyConfig from './admin/SurveyConfig'
+import QuestionManager from './admin/QuestionManager'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -94,6 +95,13 @@ const AdminDashboard: React.FC = () => {
             Configuration
           </button>
           <button
+            onClick={() => setCurrentView('questions')}
+            className={`btn ${currentView === 'questions' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Search className="w-4 h-4 mr-2" />
+            Questions
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary px-4 py-2"
           >
@@ -157,6 +165,10 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'config' && (
         <SurveyConfig />
+      )}
+
+      {currentView === 'questions' && (
+        <QuestionManager />
       )}
     </div>
   )

@@ -57,3 +57,35 @@ model SurveyConfig {
 
   @@map("survey_config")
 }
+
+model SurveyQuestion {
+  id                String   @id @default(uuid())
+  section           String   // Section identifier (e.g., "A", "B", "C")
+  questionType      String   // "text", "select", "multiselect", "rating", "boolean"
+  questionText      String
+  questionNumber    Int      // Order within section
+  isRequired        Boolean  @default(true)
+  options           String?  // JSON array of options for select/multiselect
+  validationRules   String?  // JSON object with validation rules
+  placeholder       String?
+  helpText          String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("survey_questions")
+  @@unique([section, questionNumber])
+}
+
+model SurveySection {
+  id                String   @id @default(uuid())
+  sectionKey        String   @unique // "A", "B", "C", etc.
+  title             String
+  description       String?
+  order             Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("survey_sections")
+}
