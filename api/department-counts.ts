@@ -4,6 +4,7 @@ import { verifyToken } from '../src/lib/auth'
 import { handleCors } from '../src/lib/cors'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('Department counts API called:', req.method, req.url)
   // Handle CORS
   if (handleCors(req, res)) return
 
