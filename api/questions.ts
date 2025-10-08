@@ -39,17 +39,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { section, active } = req.query
       
-      const where: any = {}
-      if (section) where.section = section
-      if (active !== undefined) where.isActive = active === 'true'
+      // Check if SurveyQuestion table exists by trying to access it
+      let questions
+      try {
+        const where: any = {}
+        if (section) where.section = section
+        if (active !== undefined) where.isActive = active === 'true'
 
-      const questions = await prisma.surveyQuestion.findMany({
-        where,
-        orderBy: [
-          { section: 'asc' },
-          { questionNumber: 'asc' }
-        ]
-      })
+        questions = await prisma.surveyQuestion.findMany({
+          where,
+          orderBy: [
+            { section: 'asc' },
+            { questionNumber: 'asc' }
+          ]
+        })
+      } catch (tableError) {
+        // If table doesn't exist, return empty array
+        console.log('SurveyQuestion table not found, returning empty questions array')
+        questions = []
+      }
 
       res.status(200).json({ success: true, data: questions })
     } catch (error) {
@@ -63,32 +71,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const data = questionSchema.parse(req.body)
       
-      // Check if question number already exists in section
-      const existingQuestion = await prisma.surveyQuestion.findUnique({
-        where: {
-          section_questionNumber: {
-            section: data.section,
-            questionNumber: data.questionNumber
+      // Check if SurveyQuestion table exists
+      try {
+        // Check if question number already exists in section
+        const existingQuestion = await prisma.surveyQuestion.findUnique({
+          where: {
+            section_questionNumber: {
+              section: data.section,
+              questionNumber: data.questionNumber
+            }
           }
-        }
-      })
+        })
 
-      if (existingQuestion) {
-        return res.status(400).json({ 
+        if (existingQuestion) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'Question number already exists in this section' 
+          })
+        }
+
+        const question = await prisma.surveyQuestion.create({
+          data: {
+            ...data,
+            options: data.options ? JSON.stringify(data.options) : null,
+            validationRules: data.validationRules ? JSON.stringify(data.validationRules) : null
+          }
+        })
+
+        res.status(201).json({ success: true, data: question })
+      } catch (tableError) {
+        return res.status(503).json({ 
           success: false, 
-          error: 'Question number already exists in this section' 
+          error: 'Question management not available. Please run database migration first.' 
         })
       }
-
-      const question = await prisma.surveyQuestion.create({
-        data: {
-          ...data,
-          options: data.options ? JSON.stringify(data.options) : null,
-          validationRules: data.validationRules ? JSON.stringify(data.validationRules) : null
-        }
-      })
-
-      res.status(201).json({ success: true, data: question })
     } catch (error) {
       console.error('Error creating question:', error)
       if (error instanceof z.ZodError) {

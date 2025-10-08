@@ -52,7 +52,7 @@ const QuestionManager: React.FC = () => {
   const queryClient = useQueryClient()
 
   // Fetch sections
-  const { data: sectionsData, isLoading: sectionsLoading } = useQuery({
+  const { data: sectionsData, isLoading: sectionsLoading, error: sectionsError } = useQuery({
     queryKey: ['sections'],
     queryFn: async () => {
       const response = await fetch('/api/sections')
@@ -216,6 +216,38 @@ const QuestionManager: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <p className="text-secondary-600 text-lg">Loading question manager...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (sectionsError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center max-w-md">
+            <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Database Setup Required</h3>
+            <p className="text-gray-600 mb-4">
+              The question management system requires database tables to be created first.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-left">
+              <h4 className="font-semibold text-yellow-800 mb-2">To fix this issue:</h4>
+              <ol className="text-sm text-yellow-700 space-y-1">
+                <li>1. Run: <code className="bg-yellow-100 px-1 rounded">npx prisma migrate dev --name add_question_management</code></li>
+                <li>2. Or run: <code className="bg-yellow-100 px-1 rounded">npx prisma db push</code></li>
+                <li>3. Refresh this page</li>
+              </ol>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
         </div>
       </div>
     )
