@@ -35,6 +35,15 @@ const AnalyticsDashboard: React.FC = () => {
     queryFn: () => surveyApi.getSurveyConfig()
   })
 
+  // Fetch department counts for accurate expected responses
+  const { data: departmentData } = useQuery({
+    queryKey: ['departmentCounts'],
+    queryFn: async () => {
+      const response = await fetch('/api/department-counts')
+      return response.json()
+    }
+  })
+
   const responses = responsesData?.data || []
 
   // Advanced data processing with filtering
@@ -168,7 +177,8 @@ const AnalyticsDashboard: React.FC = () => {
   const CHART_COLORS = [COLORS.primary, COLORS.success, COLORS.warning, COLORS.danger, COLORS.purple, COLORS.teal, COLORS.orange, COLORS.pink, COLORS.indigo, COLORS.emerald]
 
   const totalResponses = filteredResponses.length
-  const expectedResponses = surveyConfig?.config?.expectedResponses || 100
+  // Use department total or survey config, whichever is available
+  const expectedResponses = departmentData?.totalExpected || surveyConfig?.config?.expectedResponses || 147
   const progressPercentage = expectedResponses > 0 ? Math.min((totalResponses / expectedResponses) * 100, 100) : 0
   
   // Advanced metrics calculation
