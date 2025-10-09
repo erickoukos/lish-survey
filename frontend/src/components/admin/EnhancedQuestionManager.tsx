@@ -53,6 +53,17 @@ const EnhancedQuestionManager: React.FC = () => {
 
   const queryClient = useQueryClient()
 
+  // Initialize selectedSurveySet from localStorage
+  useEffect(() => {
+    const storedSurveySetId = localStorage.getItem('selectedSurveySetId')
+    if (storedSurveySetId) {
+      setSelectedSurveySet(storedSurveySetId)
+    } else if (surveySetsData?.data?.length > 0) {
+      // Default to first survey set if none selected
+      setSelectedSurveySet(surveySetsData.data[0].id)
+    }
+  }, [surveySetsData])
+
   // Fetch survey sets
   const { data: surveySetsData } = useQuery({
     queryKey: ['surveySets'],

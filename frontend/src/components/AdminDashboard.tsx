@@ -23,6 +23,46 @@ const AdminDashboard: React.FC = () => {
     search: ''
   })
 
+  // Handle URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const tab = urlParams.get('tab')
+    const surveySetId = urlParams.get('surveySetId')
+    
+    if (tab) {
+      switch (tab) {
+        case 'questions':
+          setCurrentView('enhanced-questions')
+          break
+        case 'analytics':
+          setCurrentView('analytics')
+          break
+        case 'config':
+          setCurrentView('config')
+          break
+        case 'departments':
+          setCurrentView('departments')
+          break
+        case 'survey-sets':
+          setCurrentView('survey-sets')
+          break
+        case 'enhanced-questions':
+          setCurrentView('enhanced-questions')
+          break
+        case 'backup':
+          setCurrentView('backup')
+          break
+        default:
+          setCurrentView('table')
+      }
+    }
+    
+    // Store surveySetId in localStorage for EnhancedQuestionManager
+    if (surveySetId) {
+      localStorage.setItem('selectedSurveySetId', surveySetId)
+    }
+  }, [])
+
   const { data: responsesData, isLoading, refetch } = useQuery({
     queryKey: ['responses', filters],
     queryFn: () => adminApi.getResponses(filters),
