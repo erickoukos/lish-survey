@@ -86,12 +86,18 @@ const SurveyConfig: React.FC = () => {
 
     setSaving(true)
     try {
-      // Ensure surveySetId is included in the config
-      const configWithSurveySetId = {
-        ...config,
-        surveySetId: config.surveySetId || 'default'
+      // Only send the fields that the API expects
+      const apiPayload = {
+        surveySetId: config.surveySetId || 'default',
+        isActive: config.isActive,
+        startDate: config.startDate,
+        endDate: config.endDate,
+        title: config.title,
+        description: config.description,
+        expectedResponses: config.expectedResponses
       }
-      await surveyApi.updateSurveyConfig(configWithSurveySetId)
+      console.log('Sending API payload:', apiPayload)
+      await surveyApi.updateSurveyConfig(apiPayload)
       toast.success('Survey configuration updated successfully')
     } catch (error) {
       console.error('Error updating survey config:', error)

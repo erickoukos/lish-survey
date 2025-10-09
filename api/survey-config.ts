@@ -106,6 +106,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'POST' || req.method === 'PUT') {
       console.log('Survey config update request received')
+      console.log('Request body:', JSON.stringify(req.body, null, 2))
       
       // Update survey configuration (admin only)
       const authHeader = req.headers.authorization
@@ -126,6 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const validationResult = surveyConfigSchema.safeParse(req.body)
       if (!validationResult.success) {
         console.log('Validation failed:', validationResult.error.errors)
+        console.log('Expected schema:', surveyConfigSchema.shape)
         return res.status(400).json({
           error: 'Invalid request data',
           details: validationResult.error.errors
