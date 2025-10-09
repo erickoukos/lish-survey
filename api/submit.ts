@@ -94,16 +94,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get the active survey set
     let activeSurveySet = null
     try {
+      console.log('Attempting to fetch active survey set...')
       activeSurveySet = await prisma.surveySet.findFirst({
         where: { isActive: true },
         orderBy: { createdAt: 'desc' }
       })
+      console.log('Active survey set found:', activeSurveySet?.id)
     } catch (dbError) {
-      console.warn('Could not fetch active survey set, using default:', dbError)
+      console.error('Database error fetching survey set:', dbError)
+      console.error('Error details:', {
+        message: dbError.message,
+        code: dbError.code,
+        stack: dbError.stack
+      })
     }
 
     // Create survey response (with fallback if database is unavailable)
     try {
+      console.log('Attempting to create survey response...')
+      console.log('Survey set ID:', activeSurveySet?.id || 'default')
+      console.log('Department:', data.department)
+      
       const response = await prisma.surveyResponse.create({
         data: {
           surveyPeriod: 'default', // Current survey period
@@ -146,6 +157,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     } catch (dbError) {
       console.error('Database error when creating survey response:', dbError)
+      console.error('Error details:', {
+        message: dbError.message,
+        code: dbError.code,
+        stack: dbError.stack
+      })
+      console.error('Database URL available:', !!process.env.DATABASE_URL)
+      console.error('Environment:', process.env.NODE_ENV)
       
       // Log the submission data for manual processing if needed
       console.log('Survey submission data (database unavailable):', {
@@ -161,7 +179,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: true,
         id: 'logged-' + Date.now(),
         message: 'Survey response received and logged (database temporarily unavailable)',
-        warning: 'Response has been logged for manual processing'
+        warning: 'Response has been logged for manual processing',
+        error: dbError.message
       })
     }
 

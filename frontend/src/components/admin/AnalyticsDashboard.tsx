@@ -36,7 +36,7 @@ const AnalyticsDashboard: React.FC = () => {
   })
 
   // Fetch department counts for accurate expected responses
-  const { data: departmentData } = useQuery({
+  const { data: departmentCountsData } = useQuery({
     queryKey: ['departmentCounts'],
     queryFn: async () => {
       const response = await fetch('/api/department-counts')
@@ -178,7 +178,7 @@ const AnalyticsDashboard: React.FC = () => {
 
   const totalResponses = filteredResponses.length
   // Use department total or survey config, whichever is available
-  const expectedResponses = departmentData?.totalExpected || surveyConfig?.config?.expectedResponses || 147
+  const expectedResponses = departmentCountsData?.totalExpected || surveyConfig?.config?.expectedResponses || 147
   const progressPercentage = expectedResponses > 0 ? Math.min((totalResponses / expectedResponses) * 100, 100) : 0
   
   // Advanced metrics calculation
