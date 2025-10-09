@@ -156,15 +156,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
 
         if (!surveySet) {
-          console.log('Creating default survey set...')
-          surveySet = await prisma.surveySet.create({
-            data: {
-              id: 'default',
-              name: 'Default Survey',
-              description: 'Default survey set for the application',
-              isActive: true
-            }
+          console.log('Survey set not found, looking for existing default...')
+          // Try to find any existing survey set
+          const existingSurveySet = await prisma.surveySet.findFirst({
+            where: { isActive: true }
           })
+          
+          if (existingSurveySet) {
+            console.log('Using existing survey set:', existingSurveySet.id)
+            surveySet = existingSurveySet
+          } else {
+            console.log('Creating new survey set...')
+            surveySet = await prisma.surveySet.create({
+              data: {
+                id: surveySetId,
+                name: 'Default Survey',
+                description: 'Default survey set for the application',
+                isActive: true
+              }
+            })
+          }
         }
 
         // First, try to find existing config
