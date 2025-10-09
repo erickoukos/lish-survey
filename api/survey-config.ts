@@ -6,8 +6,8 @@ import { z } from 'zod'
 const surveyConfigSchema = z.object({
   surveySetId: z.string().optional(),
   isActive: z.boolean(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
+  startDate: z.string(),
+  endDate: z.string(),
   title: z.string().optional(),
   description: z.string().optional(),
   expectedResponses: z.number().min(1).optional()
