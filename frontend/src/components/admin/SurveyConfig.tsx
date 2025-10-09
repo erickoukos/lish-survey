@@ -191,7 +191,7 @@ const SurveyConfig: React.FC = () => {
             <input
               type="text"
               value={config.title}
-              onChange={(e) => setConfig({ ...config, title: e.target.value })}
+              onChange={(e) => setConfig({ ...config, title: e.target.value, surveySetId: config.surveySetId || 'default' })}
               className="form-input w-full"
               placeholder="Survey title"
             />
@@ -203,7 +203,7 @@ const SurveyConfig: React.FC = () => {
             </label>
             <select
               value={config.isActive ? 'true' : 'false'}
-              onChange={(e) => setConfig({ ...config, isActive: e.target.value === 'true' })}
+              onChange={(e) => setConfig({ ...config, isActive: e.target.value === 'true', surveySetId: config.surveySetId || 'default' })}
               className="form-input w-full"
             >
               <option value="true">Active</option>
@@ -223,7 +223,8 @@ const SurveyConfig: React.FC = () => {
                 const newStartDate = fromDateTimeLocal(e.target.value)
                 setConfig({ 
                   ...config, 
-                  startDate: newStartDate
+                  startDate: newStartDate,
+                  surveySetId: config.surveySetId || 'default'
                 })
               }}
               className="form-input w-full"
@@ -240,7 +241,7 @@ const SurveyConfig: React.FC = () => {
               <input
                 type="datetime-local"
                 value={toDateTimeLocal(config.endDate)}
-                onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
+                onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value), surveySetId: config.surveySetId || 'default' })}
                 className="form-input flex-1"
                 title="Set custom end date - you can extend beyond 7 days"
               />
@@ -248,7 +249,7 @@ const SurveyConfig: React.FC = () => {
                 type="button"
                 onClick={() => {
                   const defaultEndDate = calculateDefaultEndDate(config.startDate)
-                  setConfig({ ...config, endDate: defaultEndDate })
+                  setConfig({ ...config, endDate: defaultEndDate, surveySetId: config.surveySetId || 'default' })
                 }}
                 className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
                 title="Set to 7 days after start date"
@@ -265,7 +266,7 @@ const SurveyConfig: React.FC = () => {
           </label>
           <textarea
             value={config.description || ''}
-            onChange={(e) => setConfig({ ...config, description: e.target.value })}
+            onChange={(e) => setConfig({ ...config, description: e.target.value, surveySetId: config.surveySetId || 'default' })}
             rows={3}
             className="form-textarea w-full"
             placeholder="Survey description"
@@ -283,7 +284,7 @@ const SurveyConfig: React.FC = () => {
               type="number"
               min="1"
               value={config.expectedResponses}
-              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
+              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100, surveySetId: config.surveySetId || 'default' })}
               className="form-input w-32"
               placeholder="100"
             />
@@ -292,7 +293,11 @@ const SurveyConfig: React.FC = () => {
                 <Users className="w-4 h-4" />
                 <span>Auto-calculated: {departmentData.totalExpected}</span>
                 <button
-                  onClick={() => setConfig({ ...config, expectedResponses: departmentData.totalExpected })}
+                  onClick={() => setConfig({ 
+                    ...config, 
+                    expectedResponses: departmentData.totalExpected,
+                    surveySetId: config.surveySetId || 'default'
+                  })}
                   className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
                 >
                   Use Auto
