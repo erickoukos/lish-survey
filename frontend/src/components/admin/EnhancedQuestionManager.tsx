@@ -373,11 +373,29 @@ const EnhancedQuestionManager: React.FC = () => {
                           {question.helpText && (
                             <p className="text-sm text-gray-600">{question.helpText}</p>
                           )}
-                          {question.options && question.options.length > 0 && (
+                          {question.options && (() => {
+                            try {
+                              const options = typeof question.options === 'string' 
+                                ? JSON.parse(question.options) 
+                                : question.options;
+                              return Array.isArray(options) && options.length > 0;
+                            } catch {
+                              return false;
+                            }
+                          })() && (
                             <div className="mt-2">
                               <p className="text-sm font-medium text-gray-700">Options:</p>
                               <ul className="text-sm text-gray-600 list-disc list-inside">
-                                {question.options.map((option, idx) => (
+                                {(() => {
+                                  try {
+                                    const options = typeof question.options === 'string' 
+                                      ? JSON.parse(question.options) 
+                                      : question.options;
+                                    return Array.isArray(options) ? options : [];
+                                  } catch {
+                                    return [];
+                                  }
+                                })().map((option, idx) => (
                                   <li key={idx}>{option}</li>
                                 ))}
                               </ul>
