@@ -10,7 +10,8 @@ import {
   FileText, 
   BarChart3,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Edit
 } from 'lucide-react'
 
 interface SurveySet {
@@ -30,7 +31,9 @@ interface SurveySet {
 const SurveySetManager: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState<string | null>(null)
+  const [showEditForm, setShowEditForm] = useState<string | null>(null)
   const [newSurveySet, setNewSurveySet] = useState({ name: '', description: '' })
+  const [editingSurveySet, setEditingSurveySet] = useState({ name: '', description: '' })
   const queryClient = useQueryClient()
 
   // Fetch survey sets
@@ -119,6 +122,31 @@ const SurveySetManager: React.FC = () => {
     }
   })
 
+  // Update survey set mutation
+  const updateMutation = useMutation({
+    mutationFn: async (data: { id: string; name: string; description?: string }) => {
+      const response = await fetch('/api/survey-sets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+      })
+      if (!response.ok) throw new Error('Failed to update survey set')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['surveySets'] })
+      setShowEditForm(null)
+      setEditingSurveySet({ name: '', description: '' })
+      toast.success('Survey set updated successfully!')
+    },
+    onError: () => {
+      toast.error('Failed to update survey set')
+    }
+  })
+
   const handleCreateSurveySet = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newSurveySet.name.trim()) {
@@ -136,6 +164,26 @@ const SurveySetManager: React.FC = () => {
 
   const handleResetResponses = (surveySetId: string) => {
     resetMutation.mutate(surveySetId)
+  }
+
+  const handleEditSurveySet = (surveySet: SurveySet) => {
+    setEditingSurveySet({ name: surveySet.name, description: surveySet.description || '' })
+    setShowEditForm(surveySet.id)
+  }
+
+  const handleUpdateSurveySet = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingSurveySet.name.trim()) {
+      toast.error('Survey set name is required')
+      return
+    }
+    if (showEditForm) {
+      updateMutation.mutate({
+        id: showEditForm,
+        name: editingSurveySet.name,
+        description: editingSurveySet.description
+      })
+    }
   }
 
   const surveySets: SurveySet[] = surveySetsData?.data || []
@@ -212,6 +260,56 @@ const SurveySetManager: React.FC = () => {
           </div>
         )}
 
+        {/* Edit Survey Set Form */}
+        {showEditForm && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Edit Survey Set</h2>
+            <form onSubmit={handleUpdateSurveySet} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Survey Set Name *
+                </label>
+                <input
+                  type="text"
+                  value={editingSurveySet.name}
+                  onChange={(e) => setEditingSurveySet({ ...editingSurveySet, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Q1 2024 Employee Survey"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={editingSurveySet.description}
+                  onChange={(e) => setEditingSurveySet({ ...editingSurveySet, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Optional description for this survey set"
+                  rows={3}
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {updateMutation.isPending ? 'Updating...' : 'Update Survey Set'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEditForm(null)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Survey Sets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Create New Card */}
@@ -251,6 +349,13 @@ const SurveySetManager: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEditSurveySet(surveySet)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                    title="Edit survey set"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => handleDeleteSurveySet(surveySet.id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
