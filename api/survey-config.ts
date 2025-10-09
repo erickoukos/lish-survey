@@ -128,9 +128,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!validationResult.success) {
         console.log('Validation failed:', validationResult.error.errors)
         console.log('Expected schema:', surveyConfigSchema.shape)
+        console.log('Received body:', JSON.stringify(req.body, null, 2))
         return res.status(400).json({
           error: 'Invalid request data',
-          details: validationResult.error.errors
+          details: validationResult.error.errors,
+          received: req.body
         })
       }
 
@@ -237,6 +239,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (dbError) {
         console.error('Database error in survey-config POST/PUT:', dbError)
         console.error('Error details:', JSON.stringify(dbError, null, 2))
+        console.error('Error stack:', dbError instanceof Error ? dbError.stack : 'No stack trace')
         
         // Try to disconnect from database
         try {
@@ -246,9 +249,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         return res.status(500).json({
-          error: 'Database unavailable',
-          message: 'Cannot update configuration - database not available',
-          details: dbError instanceof Error ? dbError.message : 'Unknown database error'
+          error: 'Database error',
+          message: 'Cannot update configuration - database error',
+          details: dbError instanceof Error ? dbError.message : 'Unknown database error',
+          stack: dbError instanceof Error ? dbError.stack : undefined
         })
       }
     }
