@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 
 interface SurveyConfig {
   id: string
+  surveySetId?: string
   isActive: boolean
   startDate: string
   endDate: string
@@ -66,7 +67,12 @@ const SurveyConfig: React.FC = () => {
   const fetchConfig = async () => {
     try {
       const response = await surveyApi.getSurveyConfig()
-      setConfig(response.config)
+      const configData = response.config
+      // Ensure surveySetId is set
+      if (!configData.surveySetId) {
+        configData.surveySetId = 'default'
+      }
+      setConfig(configData)
     } catch (error) {
       console.error('Error fetching survey config:', error)
       toast.error('Failed to load survey configuration')
@@ -80,7 +86,12 @@ const SurveyConfig: React.FC = () => {
 
     setSaving(true)
     try {
-      await surveyApi.updateSurveyConfig(config)
+      // Ensure surveySetId is included in the config
+      const configWithSurveySetId = {
+        ...config,
+        surveySetId: config.surveySetId || 'default'
+      }
+      await surveyApi.updateSurveyConfig(configWithSurveySetId)
       toast.success('Survey configuration updated successfully')
     } catch (error) {
       console.error('Error updating survey config:', error)
