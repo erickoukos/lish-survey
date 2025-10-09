@@ -64,6 +64,16 @@ const SurveyConfig: React.FC = () => {
     fetchConfig()
   }, [])
 
+  // Update expected responses when department data changes
+  useEffect(() => {
+    if (config && departmentData?.totalExpected) {
+      setConfig(prevConfig => ({
+        ...prevConfig!,
+        expectedResponses: departmentData.totalExpected
+      }))
+    }
+  }, [departmentData, config])
+
   const fetchConfig = async () => {
     try {
       const response = await surveyApi.getSurveyConfig()
@@ -72,6 +82,12 @@ const SurveyConfig: React.FC = () => {
       if (!configData.surveySetId) {
         configData.surveySetId = 'default'
       }
+      
+      // Auto-calculate expected responses from department data
+      if (departmentData?.totalExpected && configData.expectedResponses === 100) {
+        configData.expectedResponses = departmentData.totalExpected
+      }
+      
       setConfig(configData)
     } catch (error) {
       console.error('Error fetching survey config:', error)

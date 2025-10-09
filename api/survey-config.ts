@@ -53,6 +53,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
 
         if (!config) {
+          // Get total expected responses from department counts
+          const departmentCounts = await prisma.departmentCount.findMany({
+            where: { isActive: true }
+          })
+          const totalExpected = departmentCounts.reduce((sum, dept) => sum + dept.staffCount, 0)
+          
           // Create default configuration if none exists
           const startDate = new Date()
           const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
@@ -65,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               endDate: endDate,
               title: 'Policy Awareness Survey',
               description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
-              expectedResponses: 100
+              expectedResponses: totalExpected || 100
             }
           })
 
@@ -92,6 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           endDate: endDate.toISOString(),
           title: 'Policy Awareness Survey',
           description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+          expectedResponses: 147, // Default to the total we set up earlier
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -312,6 +319,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           where: { surveySetId: surveySet.id }
         })
 
+        // Get total expected responses from department counts
+        const departmentCounts = await prisma.departmentCount.findMany({
+          where: { isActive: true }
+        })
+        const totalExpected = departmentCounts.reduce((sum, dept) => sum + dept.staffCount, 0)
+        
         const startDate = new Date()
         const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         const defaultConfig = await prisma.surveyConfig.create({
@@ -322,7 +335,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             startDate: startDate,
             endDate: endDate,
             title: 'Policy Awareness Survey',
-            description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+            description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+            expectedResponses: totalExpected || 100
           }
         })
 
