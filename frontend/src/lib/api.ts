@@ -124,7 +124,7 @@ export const authApi = {
 }
 
 export const adminApi = {
-  getResponses: async (params?: { page?: number; limit?: number; department?: string }) => {
+  getResponses: async (params?: { page?: number; limit?: number; department?: string; surveySetId?: string }) => {
     const response = await api.get('/api/responses', { params })
     return response.data
   },

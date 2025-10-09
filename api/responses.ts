@@ -36,6 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const page = parseInt(req.query.page as string) || 1
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100)
     const department = req.query.department as string
+    const surveySetId = req.query.surveySetId as string
     const surveyPeriod = req.query.surveyPeriod as string || 'default'
     const skip = (page - 1) * limit
 
@@ -44,6 +45,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const where: any = {
         surveyPeriod: surveyPeriod
       }
+      
+      // Add survey set filter if provided
+      if (surveySetId) {
+        where.surveySetId = surveySetId
+      }
+      
       if (department && department !== 'all') {
         where.department = department
       }
@@ -51,9 +58,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Get total count
       const totalCount = await prisma.surveyResponse.count({ where })
 
-      // Get responses with pagination
+      // Get responses with pagination and survey set info
       const responses = await prisma.surveyResponse.findMany({
         where,
+        include: {
+          surveySet: {
+            select: {
+              id: true,
+              name: true,
+              description: true
+            }
+          }
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit

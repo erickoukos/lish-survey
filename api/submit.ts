@@ -91,11 +91,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const data = validationResult.data
 
+    // Get the active survey set
+    let activeSurveySet = null
+    try {
+      activeSurveySet = await prisma.surveySet.findFirst({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (dbError) {
+      console.warn('Could not fetch active survey set, using default:', dbError)
+    }
+
     // Create survey response (with fallback if database is unavailable)
     try {
       const response = await prisma.surveyResponse.create({
         data: {
           surveyPeriod: 'default', // Current survey period
+          surveySetId: activeSurveySet?.id || 'default', // Link to active survey set
           department: data.department,
           awareness: JSON.stringify(data.awareness),
           urgentTrainings: JSON.stringify(data.urgentTrainings),

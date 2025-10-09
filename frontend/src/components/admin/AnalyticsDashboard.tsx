@@ -7,12 +7,27 @@ import { Users, TrendingUp, Target, CheckCircle, AlertTriangle, Award, BarChart3
 const AnalyticsDashboard: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | '90d' | 'all'>('all')
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all')
+  const [selectedSurveySet, setSelectedSurveySet] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'overview' | 'detailed' | 'comparative'>('overview')
   const [showAdvancedMetrics, setShowAdvancedMetrics] = useState(false)
 
+  // Fetch survey sets
+  const { data: surveySetsData } = useQuery({
+    queryKey: ['surveySets'],
+    queryFn: async () => {
+      const response = await fetch('/api/survey-sets')
+      if (!response.ok) throw new Error('Failed to fetch survey sets')
+      return response.json()
+    }
+  })
+
   const { data: responsesData, isLoading, refetch } = useQuery({
-    queryKey: ['responses', { page: 1, limit: 1000 }],
-    queryFn: () => adminApi.getResponses({ page: 1, limit: 1000 })
+    queryKey: ['responses', { page: 1, limit: 1000, surveySetId: selectedSurveySet }],
+    queryFn: () => adminApi.getResponses({ 
+      page: 1, 
+      limit: 1000,
+      surveySetId: selectedSurveySet === 'all' ? undefined : selectedSurveySet
+    })
   })
 
   const { data: surveyConfig } = useQuery({
@@ -43,9 +58,14 @@ const AnalyticsDashboard: React.FC = () => {
     })
 
     // Filter by department
-    const filteredResponses = selectedDepartment === 'all' 
+    const filteredByDepartment = selectedDepartment === 'all' 
       ? filteredByTime 
       : filteredByTime.filter(response => response.department === selectedDepartment)
+
+    // Filter by survey set
+    const filteredResponses = selectedSurveySet === 'all' 
+      ? filteredByDepartment 
+      : filteredByDepartment.filter(response => response.surveySetId === selectedSurveySet)
 
     // Get unique departments
     const departments = [...new Set(responses.map(r => r.department))]
@@ -59,7 +79,7 @@ const AnalyticsDashboard: React.FC = () => {
     }
 
     return { filteredResponses, departments, timeframes }
-  }, [responses, selectedTimeframe, selectedDepartment])
+  }, [responses, selectedTimeframe, selectedDepartment, selectedSurveySet])
 
   const { filteredResponses, departments, timeframes } = processedData
 
@@ -374,6 +394,20 @@ const AnalyticsDashboard: React.FC = () => {
                   <option value="all">All Departments</option>
                   {departments.map(dept => (
                     <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4 text-gray-500" />
+                <select
+                  value={selectedSurveySet}
+                  onChange={(e) => setSelectedSurveySet(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">All Survey Sets</option>
+                  {surveySetsData?.data?.map((set: any) => (
+                    <option key={set.id} value={set.id}>{set.name}</option>
                   ))}
                 </select>
               </div>
