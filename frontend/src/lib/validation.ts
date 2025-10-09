@@ -108,6 +108,32 @@ export const refresherFrequencyEnum = z.enum([
   '2 trainings /Month'
 ])
 
+export const prioritizedPoliciesEnum = z.enum([
+  'Anti-Social Behavior Policy',
+  'Anti-Discrimination Policy',
+  'Sexual and Other forms of harassment Policy',
+  'Safeguarding Policy',
+  'HR Policy Manual',
+  'Code of Conduct',
+  'Finance & Financial Wellness Policy',
+  'Work-Life Balance & Mental Health Policy',
+  'Digital Workplace & Skills Policy',
+  'Soft Skills Development Policy'
+])
+
+export const policyChallengesEnum = z.enum([
+  'Policies are too complex or difficult to understand',
+  'Lack of clear examples or case studies',
+  'Insufficient training on policy implementation',
+  'Policies are not easily accessible or well-organized',
+  'Conflicting information between different policies',
+  'Language barriers or technical jargon',
+  'Lack of regular updates or communication about policy changes',
+  'Unclear consequences or enforcement procedures',
+  'Limited time to read and understand all policies',
+  'Others (Specify)'
+])
+
 export const surveyFormSchema = z.object({
   department: departmentEnum,
   awareness: awarenessSchema,
@@ -129,9 +155,9 @@ export const surveyFormSchema = z.object({
   trainingMethod: trainingMethodEnum,
   trainingMethodOther: z.string().optional(),
   refresherFrequency: refresherFrequencyEnum,
-  prioritizedPolicies: z.string().optional(),
+  prioritizedPolicies: z.array(prioritizedPoliciesEnum).optional(),
   prioritizationReason: z.string().optional(),
-  policyChallenges: z.string().optional(),
+  policyChallenges: z.array(policyChallengesEnum).optional(),
   complianceSuggestions: z.string().optional(),
   generalComments: z.string().optional()
 })
@@ -159,9 +185,9 @@ export const createSectionSchema = (section: number) => {
     trainingMethod: trainingMethodEnum.optional(),
     trainingMethodOther: z.string().optional(),
     refresherFrequency: refresherFrequencyEnum.optional(),
-    prioritizedPolicies: z.string().optional(),
+    prioritizedPolicies: z.array(prioritizedPoliciesEnum).optional(),
     prioritizationReason: z.string().optional(),
-    policyChallenges: z.string().optional(),
+    policyChallenges: z.array(policyChallengesEnum).optional(),
     complianceSuggestions: z.string().optional(),
     generalComments: z.string().optional()
   })
