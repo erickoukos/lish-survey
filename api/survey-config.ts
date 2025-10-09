@@ -4,6 +4,7 @@ import { verifyToken } from '../src/lib/auth'
 import { z } from 'zod'
 
 const surveyConfigSchema = z.object({
+  surveySetId: z.string().optional(),
   isActive: z.boolean(),
   startDate: z.string().datetime(),
   endDate: z.string().datetime(),
@@ -25,8 +26,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
       try {
-        // Get current survey configuration
+        // Get survey set ID from query params or use default
+        const surveySetId = req.query.surveySetId as string || 'default'
+        
+        // First, try to find the survey set
+        let surveySet = await prisma.surveySet.findUnique({
+          where: { id: surveySetId }
+        })
+
+        // If survey set doesn't exist, create a default one
+        if (!surveySet) {
+          surveySet = await prisma.surveySet.create({
+            data: {
+              id: 'default',
+              name: 'Default Survey',
+              description: 'Default survey set for the application',
+              isActive: true
+            }
+          })
+        }
+
+        // Get current survey configuration for this survey set
         const config = await prisma.surveyConfig.findFirst({
+          where: { surveySetId: surveySet.id },
           orderBy: { createdAt: 'desc' }
         })
 
@@ -36,6 +58,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
           const defaultConfig = await prisma.surveyConfig.create({
             data: {
+              id: 'default',
+              surveySetId: surveySet.id,
               isActive: true,
               startDate: startDate,
               endDate: endDate,
@@ -123,10 +147,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           throw connectError
         }
         
+        // Get or create survey set
+        const surveySetId = data.surveySetId || 'default'
+        let surveySet = await prisma.surveySet.findUnique({
+          where: { id: surveySetId }
+        })
+
+        if (!surveySet) {
+          console.log('Creating default survey set...')
+          surveySet = await prisma.surveySet.create({
+            data: {
+              id: 'default',
+              name: 'Default Survey',
+              description: 'Default survey set for the application',
+              isActive: true
+            }
+          })
+        }
+
         // First, try to find existing config
-        console.log('Looking for existing config with id: default')
-        const existingConfig = await prisma.surveyConfig.findUnique({
-          where: { id: 'default' }
+        console.log('Looking for existing config with surveySetId:', surveySet.id)
+        const existingConfig = await prisma.surveyConfig.findFirst({
+          where: { surveySetId: surveySet.id }
         })
         console.log('Existing config found:', !!existingConfig)
 
@@ -139,7 +181,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('Updating existing configuration...')
           // Update existing configuration
           config = await prisma.surveyConfig.update({
-            where: { id: 'default' },
+            where: { id: existingConfig.id },
             data: {
               isActive: data.isActive,
               startDate: startDate,
@@ -156,6 +198,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           config = await prisma.surveyConfig.create({
             data: {
               id: 'default',
+              surveySetId: surveySet.id,
               isActive: data.isActive,
               startDate: startDate,
               endDate: endDate,
@@ -211,26 +254,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       try {
+        // Get survey set ID from query params or use default
+        const surveySetId = req.query.surveySetId as string || 'default'
+        
+        // Get or create survey set
+        let surveySet = await prisma.surveySet.findUnique({
+          where: { id: surveySetId }
+        })
+
+        if (!surveySet) {
+          surveySet = await prisma.surveySet.create({
+            data: {
+              id: 'default',
+              name: 'Default Survey',
+              description: 'Default survey set for the application',
+              isActive: true
+            }
+          })
+        }
+
         // Get count of existing responses before reset
-        const responseCount = await prisma.surveyResponse.count()
+        const responseCount = await prisma.surveyResponse.count({
+          where: { surveySetId: surveySet.id }
+        })
 
         // Create a new survey period for the reset
         const newSurveyPeriod = `survey_${Date.now()}`
         
         // Update all existing responses to mark them as from previous period
         await prisma.surveyResponse.updateMany({
-          where: { surveyPeriod: 'default' },
+          where: { 
+            surveySetId: surveySet.id,
+            surveyPeriod: 'default' 
+          },
           data: { surveyPeriod: newSurveyPeriod }
         })
 
         // Reset survey configuration to default
-        await prisma.surveyConfig.deleteMany({})
+        await prisma.surveyConfig.deleteMany({
+          where: { surveySetId: surveySet.id }
+        })
 
         const startDate = new Date()
         const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         const defaultConfig = await prisma.surveyConfig.create({
           data: {
             id: 'default',
+            surveySetId: surveySet.id,
             isActive: true,
             startDate: startDate,
             endDate: endDate,
