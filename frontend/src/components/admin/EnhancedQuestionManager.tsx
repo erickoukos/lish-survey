@@ -53,6 +53,16 @@ const EnhancedQuestionManager: React.FC = () => {
 
   const queryClient = useQueryClient()
 
+  // Fetch survey sets
+  const { data: surveySetsData } = useQuery({
+    queryKey: ['surveySets'],
+    queryFn: async () => {
+      const response = await fetch('/api/survey-sets')
+      if (!response.ok) throw new Error('Failed to fetch survey sets')
+      return response.json()
+    }
+  })
+
   // Initialize selectedSurveySet from localStorage
   useEffect(() => {
     const storedSurveySetId = localStorage.getItem('selectedSurveySetId')
@@ -63,16 +73,6 @@ const EnhancedQuestionManager: React.FC = () => {
       setSelectedSurveySet(surveySetsData.data[0].id)
     }
   }, [surveySetsData])
-
-  // Fetch survey sets
-  const { data: surveySetsData } = useQuery({
-    queryKey: ['surveySets'],
-    queryFn: async () => {
-      const response = await fetch('/api/survey-sets')
-      if (!response.ok) throw new Error('Failed to fetch survey sets')
-      return response.json()
-    }
-  })
 
   // Fetch sections for selected survey set
   const { data: sectionsData, isLoading: sectionsLoading } = useQuery({
