@@ -19,13 +19,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { active } = req.query
+      const { active, surveySetId } = req.query
       
       // Check if SurveySection table exists by trying to access it
       let sections
       try {
         const where: any = {}
         if (active !== undefined) where.isActive = active === 'true'
+        if (surveySetId) where.surveySetId = surveySetId
 
         sections = await prisma.surveySection.findMany({
           where,

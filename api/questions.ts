@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../src/lib/prisma'
 import { z } from 'zod'
-import { cors } from '../src/lib/cors'
+import { handleCors } from '../src/lib/cors'
 
 // Validation schemas
 const questionSchema = z.object({
@@ -33,11 +33,12 @@ const sectionSchema = z.object({
 
 // GET /api/questions - Get all questions
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await cors(req, res)
+  // Handle CORS
+  if (handleCors(req, res)) return
 
   if (req.method === 'GET') {
     try {
-      const { section, active } = req.query
+      const { section, active, surveySetId } = req.query
       
       // Check if SurveyQuestion table exists by trying to access it
       let questions
@@ -45,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const where: any = {}
         if (section) where.section = section
         if (active !== undefined) where.isActive = active === 'true'
+        if (surveySetId) where.surveySetId = surveySetId
 
         questions = await prisma.surveyQuestion.findMany({
           where,

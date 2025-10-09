@@ -10,8 +10,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model SurveySet {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  description       String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  responses         SurveyResponse[]
+  sections          SurveySection[]
+  questions         SurveyQuestion[]
+  configs           SurveyConfig[]
+
+  @@map("survey_sets")
+}
+
 model SurveyResponse {
   id                        String   @id @default(uuid())
+  surveySetId               String   // Reference to survey set
   surveyPeriod              String   @default("default") // Track which survey period this response belongs to
   department                String
   awareness                 String   // JSON stored as string for SQLite
@@ -41,11 +59,15 @@ model SurveyResponse {
   generalComments            String
   createdAt                  DateTime @default(now()) @map("timestamp")
 
+  // Relations
+  surveySet                  SurveySet @relation(fields: [surveySetId], references: [id])
+
   @@map("survey_responses")
 }
 
 model SurveyConfig {
   id                String   @id @default("default")
+  surveySetId       String   // Reference to survey set
   isActive          Boolean  @default(true)
   startDate         DateTime
   endDate           DateTime
@@ -55,11 +77,15 @@ model SurveyConfig {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+  // Relations
+  surveySet         SurveySet @relation(fields: [surveySetId], references: [id])
+
   @@map("survey_config")
 }
 
 model SurveyQuestion {
   id                String   @id @default(uuid())
+  surveySetId       String   // Reference to survey set
   section           String   // Section identifier (e.g., "A", "B", "C")
   questionType      String   // "text", "select", "multiselect", "rating", "boolean"
   questionText      String
@@ -74,15 +100,17 @@ model SurveyQuestion {
   updatedAt         DateTime @updatedAt
 
   // Relations
-  sectionRef        SurveySection? @relation(fields: [section], references: [sectionKey])
+  surveySet         SurveySet @relation(fields: [surveySetId], references: [id])
+  sectionRef        SurveySection? @relation("SectionQuestions", fields: [section, surveySetId], references: [sectionKey, surveySetId])
 
   @@map("survey_questions")
-  @@unique([section, questionNumber])
+  @@unique([surveySetId, section, questionNumber])
 }
 
 model SurveySection {
   id                String   @id @default(uuid())
-  sectionKey        String   @unique // "A", "B", "C", etc.
+  surveySetId       String   // Reference to survey set
+  sectionKey        String   // "A", "B", "C", etc.
   title             String
   description       String?
   order             Int
@@ -91,9 +119,11 @@ model SurveySection {
   updatedAt         DateTime @updatedAt
 
   // Relations
-  questions         SurveyQuestion[]
+  surveySet         SurveySet @relation(fields: [surveySetId], references: [id])
+  questions         SurveyQuestion[] @relation("SectionQuestions")
 
   @@map("survey_sections")
+  @@unique([surveySetId, sectionKey])
 }
 
 model DepartmentCount {

@@ -9,10 +9,11 @@ import AnalyticsDashboard from './admin/AnalyticsDashboard'
 import SurveyConfig from './admin/SurveyConfig'
 import QuestionManager from './admin/QuestionManager'
 import DepartmentCounts from './admin/DepartmentCounts'
+import SurveySetManager from './admin/SurveySetManager'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments' | 'survey-sets'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -110,6 +111,13 @@ const AdminDashboard: React.FC = () => {
             Departments
           </button>
           <button
+            onClick={() => setCurrentView('survey-sets')}
+            className={`btn ${currentView === 'survey-sets' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Survey Sets
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary px-4 py-2"
           >
@@ -181,6 +189,10 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'departments' && (
         <DepartmentCounts />
+      )}
+
+      {currentView === 'survey-sets' && (
+        <SurveySetManager />
       )}
     </div>
   )

@@ -8,12 +8,18 @@ interface DepartmentCount {
   department: string
   staffCount: number
   isActive: boolean
+  responseCount?: number
+  remainingCount?: number
+  responseRate?: number
 }
 
 interface DepartmentCountsResponse {
   success: boolean
   data: DepartmentCount[]
   totalExpected: number
+  totalResponses: number
+  totalRemaining: number
+  overallResponseRate: number
   count: number
 }
 
@@ -215,7 +221,7 @@ const DepartmentCounts: React.FC = () => {
 
       <div className="p-6 space-y-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Total Expected Responses */}
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
             <div className="flex items-center justify-between mb-4">
@@ -223,12 +229,44 @@ const DepartmentCounts: React.FC = () => {
                 <Target className="w-6 h-6" />
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold">{totalExpected}</div>
+                <div className="text-2xl font-bold">{departmentData?.totalExpected || totalExpected}</div>
                 <div className="text-blue-100 text-sm">Expected Responses</div>
               </div>
             </div>
             <div className="text-sm text-blue-100">
               Based on current department staff counts
+            </div>
+          </div>
+
+          {/* Total Responses Received */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl">
+                <UserCheck className="w-6 h-6" />
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">{departmentData?.totalResponses || 0}</div>
+                <div className="text-green-100 text-sm">Responses Received</div>
+              </div>
+            </div>
+            <div className="text-sm text-green-100">
+              {departmentData?.overallResponseRate || 0}% response rate
+            </div>
+          </div>
+
+          {/* Remaining Responses */}
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-white/20 rounded-xl">
+                <Users className="w-6 h-6" />
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">{departmentData?.totalRemaining || 0}</div>
+                <div className="text-orange-100 text-sm">Remaining</div>
+              </div>
+            </div>
+            <div className="text-sm text-orange-100">
+              Still need to respond
             </div>
           </div>
 
@@ -245,24 +283,6 @@ const DepartmentCounts: React.FC = () => {
             </div>
             <div className="text-sm text-emerald-100">
               Active departments in organization
-            </div>
-          </div>
-
-          {/* Average Staff per Department */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <Calculator className="w-6 h-6" />
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">
-                  {departmentCount > 0 ? Math.round(totalExpected / departmentCount) : 0}
-                </div>
-                <div className="text-purple-100 text-sm">Avg per Dept</div>
-              </div>
-            </div>
-            <div className="text-sm text-purple-100">
-              Average staff per department
             </div>
           </div>
         </div>
@@ -319,7 +339,13 @@ const DepartmentCounts: React.FC = () => {
                       Staff Count
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                      Percentage
+                      Responses
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                      Remaining
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                      Response Rate
                     </th>
                     {isEditing && (
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
@@ -331,6 +357,10 @@ const DepartmentCounts: React.FC = () => {
                 <tbody className="divide-y divide-gray-200">
                   {departments.map((dept, index) => {
                     const percentage = totalExpected > 0 ? ((dept.staffCount / totalExpected) * 100).toFixed(1) : 0
+                    const responseCount = dept.responseCount || 0
+                    const remainingCount = dept.remainingCount || dept.staffCount
+                    const responseRate = dept.responseRate || 0
+                    
                     return (
                       <tr key={index} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4">
@@ -371,13 +401,41 @@ const DepartmentCounts: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                              <UserCheck className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <span className="font-semibold text-gray-900">{responseCount}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-orange-100 rounded-lg">
+                              <Users className="w-4 h-4 text-orange-600" />
+                            </div>
+                            <span className={`font-semibold ${remainingCount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                              {remainingCount}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-3">
                             <div className="w-16 bg-gray-200 rounded-full h-2">
                               <div 
-                                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${percentage}%` }}
+                                className={`h-2 rounded-full transition-all duration-300 ${
+                                  responseRate >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                                  responseRate >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                                  'bg-gradient-to-r from-red-500 to-red-600'
+                                }`}
+                                style={{ width: `${Math.min(responseRate, 100)}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-medium text-gray-600">{percentage}%</span>
+                            <span className={`text-sm font-medium ${
+                              responseRate >= 80 ? 'text-green-600' :
+                              responseRate >= 50 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>
+                              {responseRate}%
+                            </span>
                           </div>
                         </td>
                         {isEditing && (
@@ -483,16 +541,16 @@ const DepartmentCounts: React.FC = () => {
                 </div>
               </div>
 
-              {/* Response Rate Estimate */}
+              {/* Overall Response Rate */}
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-purple-500 rounded-lg">
                     <Target className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-purple-800">Expected Responses</p>
-                    <p className="text-lg font-bold text-purple-900">{totalExpected}</p>
-                    <p className="text-xs text-purple-600">Based on staff count</p>
+                    <p className="text-sm font-medium text-purple-800">Overall Response Rate</p>
+                    <p className="text-lg font-bold text-purple-900">{departmentData?.overallResponseRate || 0}%</p>
+                    <p className="text-xs text-purple-600">{departmentData?.totalResponses || 0} of {departmentData?.totalExpected || totalExpected} responses</p>
                   </div>
                 </div>
               </div>

@@ -39,13 +39,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         orderBy: { department: 'asc' }
       })
 
-      // Calculate total expected responses
+      // Get response counts by department
+      const responseCounts = await prisma.surveyResponse.groupBy({
+        by: ['department'],
+        where: {
+          surveyPeriod: 'default'
+        },
+        _count: {
+          id: true
+        }
+      })
+
+      // Create a map of department to response count
+      const responseCountMap = new Map()
+      responseCounts.forEach(item => {
+        responseCountMap.set(item.department, item._count.id)
+      })
+
+      // Calculate total expected and actual responses
       const totalExpected = departmentCounts.reduce((sum, dept) => sum + dept.staffCount, 0)
+      const totalResponses = responseCounts.reduce((sum, item) => sum + item._count.id, 0)
+      const totalRemaining = totalExpected - totalResponses
+
+      // Add response counts and remaining counts to department data
+      const departmentsWithCounts = departmentCounts.map(dept => {
+        const responseCount = responseCountMap.get(dept.department) || 0
+        const remainingCount = dept.staffCount - responseCount
+        
+        return {
+          ...dept,
+          responseCount,
+          remainingCount,
+          responseRate: dept.staffCount > 0 ? Math.round((responseCount / dept.staffCount) * 100) : 0
+        }
+      })
 
       return res.status(200).json({
         success: true,
-        data: departmentCounts,
+        data: departmentsWithCounts,
         totalExpected,
+        totalResponses,
+        totalRemaining,
+        overallResponseRate: totalExpected > 0 ? Math.round((totalResponses / totalExpected) * 100) : 0,
         count: departmentCounts.length
       })
     }
