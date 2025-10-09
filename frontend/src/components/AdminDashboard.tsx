@@ -10,10 +10,12 @@ import SurveyConfig from './admin/SurveyConfig'
 import QuestionManager from './admin/QuestionManager'
 import DepartmentCounts from './admin/DepartmentCounts'
 import SurveySetManager from './admin/SurveySetManager'
+import EnhancedQuestionManager from './admin/EnhancedQuestionManager'
+import BackupManager from './admin/BackupManager'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments' | 'survey-sets'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments' | 'survey-sets' | 'enhanced-questions' | 'backup'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -118,6 +120,20 @@ const AdminDashboard: React.FC = () => {
             Survey Sets
           </button>
           <button
+            onClick={() => setCurrentView('enhanced-questions')}
+            className={`btn ${currentView === 'enhanced-questions' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Enhanced Questions
+          </button>
+          <button
+            onClick={() => setCurrentView('backup')}
+            className={`btn ${currentView === 'backup' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Backup
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary px-4 py-2"
           >
@@ -193,6 +209,14 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'survey-sets' && (
         <SurveySetManager />
+      )}
+
+      {currentView === 'enhanced-questions' && (
+        <EnhancedQuestionManager />
+      )}
+
+      {currentView === 'backup' && (
+        <BackupManager />
       )}
     </div>
   )
