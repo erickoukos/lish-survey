@@ -7,10 +7,13 @@ import { Download, Filter, Search, BarChart3, Users, TrendingUp } from 'lucide-r
 import ResponsesTable from './admin/ResponsesTable'
 import AnalyticsDashboard from './admin/AnalyticsDashboard'
 import SurveyConfig from './admin/SurveyConfig'
+import QuestionManager from './admin/QuestionManager'
+import DepartmentCounts from './admin/DepartmentCounts'
+import SurveySetManager from './admin/SurveySetManager'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
-  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config'>('table')
+  const [currentView, setCurrentView] = useState<'table' | 'analytics' | 'config' | 'questions' | 'departments' | 'survey-sets'>('table')
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -26,7 +29,14 @@ const AdminDashboard: React.FC = () => {
 
   const handleExport = async () => {
     try {
+      toast.loading('Preparing export...', { id: 'export' })
       const blob = await adminApi.exportResponses()
+      
+      // Check if blob is valid
+      if (!blob || blob.size === 0) {
+        throw new Error('Export returned empty data')
+      }
+      
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -35,14 +45,21 @@ const AdminDashboard: React.FC = () => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      toast.success('Export completed successfully!')
-    } catch (error) {
-      toast.error('Export failed. Please try again.')
+      
+      toast.success('Export completed successfully!', { id: 'export' })
+    } catch (error: any) {
+      console.error('Export error:', error)
+      const errorMessage = error.message || 'Export failed. Please try again.'
+      toast.error(errorMessage, { id: 'export' })
     }
   }
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setFilters(prev => ({ ...prev, ...newFilters, page: 1 }))
+  }
+
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({ ...prev, page }))
   }
 
   return (
@@ -78,6 +95,27 @@ const AdminDashboard: React.FC = () => {
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             Configuration
+          </button>
+          <button
+            onClick={() => setCurrentView('questions')}
+            className={`btn ${currentView === 'questions' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Search className="w-4 h-4 mr-2" />
+            Questions
+          </button>
+          <button
+            onClick={() => setCurrentView('departments')}
+            className={`btn ${currentView === 'departments' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Departments
+          </button>
+          <button
+            onClick={() => setCurrentView('survey-sets')}
+            className={`btn ${currentView === 'survey-sets' ? 'btn-primary' : 'btn-outline'} px-4 py-2`}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Survey Sets
           </button>
           <button
             onClick={handleExport}
@@ -130,7 +168,7 @@ const AdminDashboard: React.FC = () => {
                 data={responsesData?.data || []} 
                 pagination={responsesData?.pagination}
                 isLoading={isLoading}
-                onPageChange={(page) => handleFilterChange({ page })}
+                onPageChange={handlePageChange}
               />
             </div>
           </div>
@@ -143,6 +181,18 @@ const AdminDashboard: React.FC = () => {
 
       {currentView === 'config' && (
         <SurveyConfig />
+      )}
+
+      {currentView === 'questions' && (
+        <QuestionManager />
+      )}
+
+      {currentView === 'departments' && (
+        <DepartmentCounts />
+      )}
+
+      {currentView === 'survey-sets' && (
+        <SurveySetManager />
       )}
     </div>
   )

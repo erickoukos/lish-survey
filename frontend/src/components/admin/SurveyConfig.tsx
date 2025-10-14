@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Calendar, Clock, Settings, Trash2, Save, AlertTriangle } from 'lucide-react'
+import { Calendar, Clock, Settings, Trash2, Save, AlertTriangle, Users } from 'lucide-react'
 import { surveyApi } from '../../lib/api'
+import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
 interface SurveyConfig {
@@ -10,6 +11,7 @@ interface SurveyConfig {
   endDate: string
   title: string
   description?: string
+  expectedResponses: number
   createdAt: string
   updatedAt: string
 }
@@ -20,6 +22,15 @@ const SurveyConfig: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+
+  // Fetch department counts to show calculated expected responses
+  const { data: departmentData } = useQuery({
+    queryKey: ['departmentCounts'],
+    queryFn: async () => {
+      const response = await fetch('/api/department-counts')
+      return response.json()
+    }
+  })
 
   // Helper function to convert date to datetime-local format
   const toDateTimeLocal = (dateString: string) => {
@@ -41,8 +52,8 @@ const SurveyConfig: React.FC = () => {
     return date.toISOString()
   }
 
-  // Helper function to calculate end date (7 days after start date)
-  const calculateEndDate = (startDate: string) => {
+  // Helper function to calculate default end date (7 days after start date)
+  const calculateDefaultEndDate = (startDate: string) => {
     const start = new Date(startDate)
     const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days later
     return end.toISOString()
@@ -199,11 +210,9 @@ const SurveyConfig: React.FC = () => {
               value={toDateTimeLocal(config.startDate)}
               onChange={(e) => {
                 const newStartDate = fromDateTimeLocal(e.target.value)
-                const newEndDate = calculateEndDate(newStartDate)
                 setConfig({ 
                   ...config, 
-                  startDate: newStartDate,
-                  endDate: newEndDate
+                  startDate: newStartDate
                 })
               }}
               className="form-input w-full"
@@ -214,15 +223,28 @@ const SurveyConfig: React.FC = () => {
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               End Date & Time
-              <span className="text-xs text-blue-600 ml-2">(Automatically set to 7 days after start date)</span>
+              <span className="text-xs text-blue-600 ml-2">(Set custom end date - no 7-day limit)</span>
             </label>
-            <input
-              type="datetime-local"
-              value={toDateTimeLocal(config.endDate)}
-              onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
-              className="form-input w-full bg-gray-50"
-              title="End date is automatically calculated as 7 days after start date"
-            />
+            <div className="flex gap-2">
+              <input
+                type="datetime-local"
+                value={toDateTimeLocal(config.endDate)}
+                onChange={(e) => setConfig({ ...config, endDate: fromDateTimeLocal(e.target.value) })}
+                className="form-input flex-1"
+                title="Set custom end date - you can extend beyond 7 days"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultEndDate = calculateDefaultEndDate(config.startDate)
+                  setConfig({ ...config, endDate: defaultEndDate })
+                }}
+                className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                title="Set to 7 days after start date"
+              >
+                7 Days
+              </button>
+            </div>
           </div>
         </div>
 
@@ -237,6 +259,44 @@ const SurveyConfig: React.FC = () => {
             className="form-textarea w-full"
             placeholder="Survey description"
           />
+        </div>
+
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-secondary-700 mb-2">
+            <Settings className="w-4 h-4 inline mr-1" />
+            Expected Responses
+            <span className="text-xs text-blue-600 ml-2">(Target number of participants)</span>
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              min="1"
+              value={config.expectedResponses}
+              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
+              className="form-input w-32"
+              placeholder="100"
+            />
+            {departmentData?.totalExpected && (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <Users className="w-4 h-4" />
+                <span>Auto-calculated: {departmentData.totalExpected}</span>
+                <button
+                  onClick={() => setConfig({ ...config, expectedResponses: departmentData.totalExpected })}
+                  className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                >
+                  Use Auto
+                </button>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-secondary-500 mt-1">
+            This helps track progress towards your survey goals. 
+            {departmentData?.totalExpected && (
+              <span className="text-green-600 ml-1">
+                Auto-calculated from department staff counts.
+              </span>
+            )}
+          </p>
         </div>
 
         <div className="mt-8 pt-6 border-t border-secondary-200">

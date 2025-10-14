@@ -4,7 +4,7 @@ import { RateLimiterMemory } from 'rate-limiter-flexible'
 // In production, consider using Redis for persistence across function invocations
 const rateLimiter = new RateLimiterMemory({
   keyPrefix: 'middleware',
-  points: 5, // Number of requests
+  points: 20, // Number of requests (increased for survey)
   duration: 60, // Per 60 seconds
 })
 

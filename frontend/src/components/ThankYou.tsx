@@ -28,7 +28,7 @@ const ThankYou: React.FC = () => {
             <ul className="text-sm text-primary-800 space-y-1 text-left">
               <li>• Your responses will be analyzed by our HR team</li>
               <li>• Training programs will be developed based on your feedback</li>
-              <li>• You'll receive updates on policy improvements</li>
+              <li>• You'll receive updates on policy improvements in your department and the organization</li>
             </ul>
           </div>
           
