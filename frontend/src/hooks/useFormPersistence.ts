@@ -65,6 +65,51 @@ export const useFormPersistence = (
       localStorage.removeItem(STORAGE_KEY)
       localStorage.removeItem(SECTION_KEY)
       console.log('Form data cleared from localStorage')
+      
+      // Also reset the form to ensure it's completely cleared
+      form.reset({
+        department: '',
+        awareness: {
+          antiSocialBehavior: undefined,
+          antiDiscrimination: undefined,
+          sexualHarassment: undefined,
+          safeguarding: undefined,
+          hrPolicyManual: undefined,
+          codeOfConduct: undefined,
+          financeWellness: undefined,
+          workLifeBalance: undefined,
+          digitalWorkplace: undefined,
+          softSkills: undefined,
+          professionalism: undefined
+        },
+        urgentTrainings: [],
+        urgentTrainingsOther: '',
+        financeWellnessNeeds: [],
+        cultureWellnessNeeds: [],
+        cultureWellnessOther: '',
+        digitalSkillsNeeds: [],
+        digitalSkillsOther: '',
+        professionalDevNeeds: [],
+        professionalDevOther: '',
+        confidenceLevel: undefined,
+        facedUnsureSituation: undefined,
+        unsureSituationDescription: '',
+        observedIssues: [],
+        observedIssuesOther: '',
+        knewReportingChannel: undefined,
+        trainingMethod: undefined,
+        trainingMethodOther: '',
+        refresherFrequency: undefined,
+        prioritizedPolicies: [],
+        prioritizationReason: '',
+        policyChallenges: [],
+        policyChallengesOther: '',
+        complianceSuggestions: '',
+        generalComments: ''
+      })
+      
+      // Reset to first section
+      setCurrentSection(0)
     } catch (error) {
       console.warn('Failed to clear form data from localStorage:', error)
     }

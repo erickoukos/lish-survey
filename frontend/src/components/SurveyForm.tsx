@@ -171,53 +171,8 @@ const SurveyForm: React.FC = () => {
       const result = await surveyApi.submit(dataToSend)
       console.log('API response:', result)
       
-      // Clear form data from localStorage after successful submission
+      // Clear form data from localStorage and reset form
       clearFormData()
-      
-      // Reset form to initial state
-      form.reset({
-        department: '',
-        awareness: {
-          antiSocialBehavior: undefined,
-          antiDiscrimination: undefined,
-          sexualHarassment: undefined,
-          safeguarding: undefined,
-          hrPolicyManual: undefined,
-          codeOfConduct: undefined,
-          financeWellness: undefined,
-          workLifeBalance: undefined,
-          digitalWorkplace: undefined,
-          softSkills: undefined,
-          professionalism: undefined
-        },
-        urgentTrainings: [],
-        urgentTrainingsOther: '',
-        financeWellnessNeeds: [],
-        cultureWellnessNeeds: [],
-        cultureWellnessOther: '',
-        digitalSkillsNeeds: [],
-        digitalSkillsOther: '',
-        professionalDevNeeds: [],
-        professionalDevOther: '',
-        confidenceLevel: undefined,
-        facedUnsureSituation: undefined,
-        unsureSituationDescription: '',
-        observedIssues: [],
-        observedIssuesOther: '',
-        knewReportingChannel: undefined,
-        trainingMethod: undefined,
-        trainingMethodOther: '',
-        refresherFrequency: undefined,
-        prioritizedPolicies: [],
-        prioritizationReason: '',
-        policyChallenges: [],
-        policyChallengesOther: '',
-        complianceSuggestions: '',
-        generalComments: ''
-      })
-      
-      // Reset to first section
-      setCurrentSection(0)
       
       toast.success('Survey submitted successfully!')
       navigate('/thank-you')
@@ -248,6 +203,7 @@ const SurveyForm: React.FC = () => {
   const nextSection = async () => {
     // Skip validation for introduction section
     if (currentSection === 0) {
+      console.log('Skipping validation for introduction section')
       setCurrentSection(currentSection + 1)
       return
     }
@@ -262,6 +218,16 @@ const SurveyForm: React.FC = () => {
       formData: formData,
       currentSectionName: getSectionName(currentSection)
     })
+    
+    // Additional debugging for Section B
+    if (currentSection === 2) {
+      console.log('Section B validation - Current form state:', {
+        awareness: formData.awareness,
+        awarenessType: typeof formData.awareness,
+        awarenessKeys: formData.awareness ? Object.keys(formData.awareness) : 'no awareness',
+        awarenessValues: formData.awareness ? Object.values(formData.awareness) : 'no awareness'
+      })
+    }
     
     // Extra debugging for Section B
     if (currentSection === 2) {
@@ -704,53 +670,8 @@ const SurveyForm: React.FC = () => {
                         const result = await surveyApi.submit(transformedData)
                         console.log('API response:', result)
                         
-                        // Clear form data from localStorage after successful submission
+                        // Clear form data from localStorage and reset form
                         clearFormData()
-                        
-                        // Reset form to initial state
-                        form.reset({
-                          department: '',
-                          awareness: {
-                            antiSocialBehavior: undefined,
-                            antiDiscrimination: undefined,
-                            sexualHarassment: undefined,
-                            safeguarding: undefined,
-                            hrPolicyManual: undefined,
-                            codeOfConduct: undefined,
-                            financeWellness: undefined,
-                            workLifeBalance: undefined,
-                            digitalWorkplace: undefined,
-                            softSkills: undefined,
-                            professionalism: undefined
-                          },
-                          urgentTrainings: [],
-                          urgentTrainingsOther: '',
-                          financeWellnessNeeds: [],
-                          cultureWellnessNeeds: [],
-                          cultureWellnessOther: '',
-                          digitalSkillsNeeds: [],
-                          digitalSkillsOther: '',
-                          professionalDevNeeds: [],
-                          professionalDevOther: '',
-                          confidenceLevel: undefined,
-                          facedUnsureSituation: undefined,
-                          unsureSituationDescription: '',
-                          observedIssues: [],
-                          observedIssuesOther: '',
-                          knewReportingChannel: undefined,
-                          trainingMethod: undefined,
-                          trainingMethodOther: '',
-                          refresherFrequency: undefined,
-                          prioritizedPolicies: [],
-                          prioritizationReason: '',
-                          policyChallenges: [],
-                          policyChallengesOther: '',
-                          complianceSuggestions: '',
-                          generalComments: ''
-                        })
-                        
-                        // Reset to first section
-                        setCurrentSection(0)
                         
                         toast.success('Survey submitted successfully!')
                         navigate('/thank-you')
