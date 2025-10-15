@@ -1,4 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
+import { prisma } from '../src/lib/prisma'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('Department counts API called:', req.method, req.url, new Date().toISOString())
@@ -26,7 +27,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       console.log('Processing GET request for department counts')
       
-      // Return hardcoded LISH AI LABS department data
+      // Get department counts from database
+      const departmentCounts = await prisma.departmentCount.findMany({
+        where: { isActive: true },
+        orderBy: { department: 'asc' }
+      })
+      
+      // Get actual response counts by department
+      const responseCounts = await prisma.surveyResponse.groupBy({
+        by: ['department'],
+        _count: {
+          id: true
+        }
+      })
+      
+      // Create a map of department to response count
+      const responseCountMap = new Map()
+      responseCounts.forEach(item => {
+        responseCountMap.set(item.department, item._count.id)
+      })
+      
+      // Calculate department statistics
+      const departments = departmentCounts.map(dept => {
+        const responseCount = responseCountMap.get(dept.department) || 0
+        const remainingCount = Math.max(0, dept.staffCount - responseCount)
+        const responseRate = dept.staffCount > 0 ? (responseCount / dept.staffCount) * 100 : 0
+        
+        return {
+          id: dept.id,
+          department: dept.department,
+          staffCount: dept.staffCount,
+          responseCount,
+          remainingCount,
+          responseRate: Math.round(responseRate * 100) / 100,
+          isActive: dept.isActive
+        }
+      })
+      
+      const totalExpected = departments.reduce((sum, dept) => sum + dept.staffCount, 0)
+      const totalResponses = departments.reduce((sum, dept) => sum + dept.responseCount, 0)
+      const totalRemaining = totalExpected - totalResponses
+      const overallResponseRate = totalExpected > 0 ? (totalResponses / totalExpected) * 100 : 0
+      
+      const response = {
+        success: true,
+        data: departments,
+        totalExpected,
+        totalResponses,
+        totalRemaining,
+        overallResponseRate: Math.round(overallResponseRate * 100) / 100,
+        count: departments.length,
+        message: 'Department counts retrieved successfully'
+      }
+      
+      console.log('Department counts response:', JSON.stringify(response, null, 2))
+      console.log('Total expected responses:', totalExpected, 'Total actual responses:', totalResponses)
+      
+      return res.status(200).json(response)
+    } catch (error) {
+      console.error('Department counts API error:', error)
+      
+      // Fallback to hardcoded data if database fails
+      console.log('Database error, using fallback data')
       const departments = [
         { id: 'hod-1', department: 'Head of Department (HODs)', staffCount: 7, responseCount: 0, remainingCount: 7, responseRate: 0, isActive: true },
         { id: 'tech-1', department: 'Technical Team', staffCount: 54, responseCount: 0, remainingCount: 54, responseRate: 0, isActive: true },
@@ -40,10 +102,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ]
       
       const totalExpected = departments.reduce((sum, dept) => sum + dept.staffCount, 0)
-      const totalResponses = 0 // No responses yet
+      const totalResponses = 0
       const totalRemaining = totalExpected - totalResponses
       
-      const response = {
+      return res.status(200).json({
         success: true,
         data: departments,
         totalExpected,
@@ -51,19 +113,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         totalRemaining,
         overallResponseRate: 0,
         count: departments.length,
-        message: 'Department counts API working correctly'
-      }
-      
-      console.log('Department counts response:', JSON.stringify(response, null, 2))
-      console.log('Total expected responses:', totalExpected)
-      
-      return res.status(200).json(response)
-    } catch (error) {
-      console.error('Department counts API error:', error)
-      return res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-        message: 'Failed to process department counts'
+        message: 'Department counts API working with fallback data',
+        warning: 'Database connection failed, using fallback data'
       })
     }
   }

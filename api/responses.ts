@@ -36,14 +36,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const page = parseInt(req.query.page as string) || 1
     const limit = Math.min(parseInt(req.query.limit as string) || 10, 100)
     const department = req.query.department as string
-    const surveyPeriod = req.query.surveyPeriod as string || 'default'
     const skip = (page - 1) * limit
 
     try {
       // Build where clause
-      const where: any = {
-        surveyPeriod: surveyPeriod
-      }
+      const where: any = {}
       if (department && department !== 'all') {
         where.department = department
       }

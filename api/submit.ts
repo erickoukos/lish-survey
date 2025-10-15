@@ -110,7 +110,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const response = await prisma.surveyResponse.create({
         data: {
           surveySetId: surveySet.id,
-          surveyPeriod: 'default', // Current survey period
           department: data.department,
           awareness: JSON.stringify(data.awareness),
           urgentTrainings: JSON.stringify(data.urgentTrainings),
