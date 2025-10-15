@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Deployment</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>API Deployment Test</h1>
+    
+    <div class="test">
+        <h3>Test 1: Health API</h3>
+        <button onclick="testHealth()">Test /api/health</button>
+        <div id="health-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Test 2: Department Counts API</h3>
+        <button onclick="testDepartmentCounts()">Test /api/department-counts</button>
+        <div id="department-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Test 3: Create Departments API</h3>
+        <button onclick="testCreateDepartments()">Test /api/create-departments</button>
+        <div id="create-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app';
+        
+        async function testHealth() {
+            const result = document.getElementById('health-result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                result.innerHTML = `<div class="success">✅ Success: ${JSON.stringify(data)}</div>`;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testDepartmentCounts() {
+            const result = document.getElementById('department-result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/department-counts`);
+                const text = await response.text();
+                
+                if (text.includes('<!doctype html>')) {
+                    result.innerHTML = `<div class="error">❌ Received HTML instead of JSON<br><pre>${text.substring(0, 200)}...</pre></div>`;
+                } else {
+                    const data = JSON.parse(text);
+                    result.innerHTML = `<div class="success">✅ Success: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testCreateDepartments() {
+            const result = document.getElementById('create-result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/create-departments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div class="success">✅ Success: ${JSON.stringify(data)}</div>`;
+                } else {
+                    const text = await response.text();
+                    result.innerHTML = `<div class="error">❌ HTTP ${response.status}: ${text}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
