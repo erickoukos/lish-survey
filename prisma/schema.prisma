@@ -12,6 +12,7 @@ datasource db {
 
 model SurveyResponse {
   id                        String   @id @default(uuid())
+  surveySetId               String?
   department                String
   awareness                 String   // JSON stored as string for SQLite
   urgentTrainings          String   // JSON array stored as string
@@ -39,12 +40,33 @@ model SurveyResponse {
   complianceSuggestions      String
   generalComments            String
   createdAt                  DateTime @default(now()) @map("timestamp")
+  
+  // Relations
+  surveySet                  SurveySet? @relation(fields: [surveySetId], references: [id], onDelete: Cascade)
 
   @@map("survey_responses")
 }
 
+model SurveySet {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  description       String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  sections          SurveySection[]
+  questions         SurveyQuestion[]
+  responses         SurveyResponse[]
+  configs           SurveyConfig[]
+
+  @@map("survey_sets")
+}
+
 model SurveyConfig {
-  id                String   @id @default("default")
+  id                String   @id @default(uuid())
+  surveySetId       String?
   isActive          Boolean  @default(true)
   startDate         DateTime
   endDate           DateTime
@@ -53,6 +75,9 @@ model SurveyConfig {
   expectedResponses Int      @default(100)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  
+  // Relations
+  surveySet         SurveySet? @relation(fields: [surveySetId], references: [id], onDelete: Cascade)
 
   @@map("survey_config")
 }
@@ -85,19 +110,25 @@ model DepartmentCount {
 
 model SurveySection {
   id                String   @id @default(uuid())
-  sectionKey        String   @unique
+  surveySetId       String?
+  sectionKey        String
   title             String
   description       String?
   order             Int
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  
+  // Relations
+  surveySet         SurveySet? @relation(fields: [surveySetId], references: [id], onDelete: Cascade)
 
+  @@unique([surveySetId, sectionKey])
   @@map("survey_sections")
 }
 
 model SurveyQuestion {
   id                String   @id @default(uuid())
+  surveySetId       String?
   section           String
   questionType      String
   questionText      String
@@ -110,7 +141,10 @@ model SurveyQuestion {
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  
+  // Relations
+  surveySet         SurveySet? @relation(fields: [surveySetId], references: [id], onDelete: Cascade)
 
-  @@unique([section, questionNumber])
+  @@unique([surveySetId, section, questionNumber])
   @@map("survey_questions")
 }

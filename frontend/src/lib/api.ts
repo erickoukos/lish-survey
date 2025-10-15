@@ -91,7 +91,7 @@ export const adminApi = {
   },
 
   getDepartmentCounts: async () => {
-    const response = await api.get('/api/department-counts')
+    const response = await api.get('/api/departments')
     return response.data
   },
 
