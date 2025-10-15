@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Database Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .step { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 15px 30px; margin: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #c82333; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .loading { opacity: 0.6; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 3px; font-family: monospace; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Emergency Database Fix</h1>
+            <p>This tool will force the database setup to fix the survey configuration saving error.</p>
+        </div>
+
+        <div class="step info">
+            <h3>⚠️ What This Does</h3>
+            <p>This emergency fix will:</p>
+            <ul>
+                <li>Check if all database tables exist</li>
+                <li>Create missing tables and data</li>
+                <li>Set up default admin user, survey config, and department counts</li>
+                <li>Fix the "Failed to update survey configuration" error</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Check Database Status</h3>
+            <button onclick="checkDatabaseStatus()">🔍 Check Database Status</button>
+            <div id="status-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Force Database Setup</h3>
+            <button onclick="forceDatabaseSetup()" id="setup-btn">🚨 FORCE DATABASE SETUP</button>
+            <div id="setup-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Test Survey Configuration</h3>
+            <button onclick="testSurveyConfig()">⚙️ Test Survey Config</button>
+            <div id="test-result"></div>
+        </div>
+
+        <div class="step info">
+            <h3>📞 Manual Commands (If Automated Fix Fails)</h3>
+            <p>If the automated fix doesn't work, run these commands in your terminal:</p>
+            <div class="code">
+                # 1. Push database schema to production<br>
+                npx prisma db push --accept-data-loss<br><br>
+                # 2. Generate Prisma client<br>
+                npx prisma generate<br><br>
+                # 3. Run the setup script<br>
+                node scripts/setup-database-tables.js
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `step ${type}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        async function checkDatabaseStatus() {
+            clearResults('status-result');
+            addResult('status-result', '🔄 Checking database status...', 'info');
+            
+            try {
+                const response = await fetch('/api/force-database-setup');
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('status-result', '✅ Database status check completed', 'success');
+                    
+                    if (data.status.databaseConnected) {
+                        addResult('status-result', '✅ Database connection successful', 'success');
+                    } else {
+                        addResult('status-result', '❌ Database connection failed', 'error');
+                    }
+                    
+                    // Check table status
+                    const tables = data.status.tablesExist;
+                    let allTablesExist = true;
+                    
+                    for (const [table, exists] of Object.entries(tables)) {
+                        if (exists) {
+                            addResult('status-result', `✅ Table ${table} exists`, 'success');
+                        } else {
+                            addResult('status-result', `❌ Table ${table} missing`, 'error');
+                            allTablesExist = false;
+                        }
+                    }
+                    
+                    if (allTablesExist) {
+                        addResult('status-result', '🎉 All database tables exist!', 'success');
+                    } else {
+                        addResult('status-result', '⚠️ Some tables are missing - proceed with force setup', 'warning');
+                    }
+                    
+                    if (data.status.errors.length > 0) {
+                        addResult('status-result', '⚠️ Database errors found:', 'warning');
+                        data.status.errors.forEach(error => {
+                            addResult('status-result', `• ${error}`, 'warning');
+                        });
+                    }
+                } else {
+                    addResult('status-result', '❌ Database status check failed', 'error');
+                    addResult('status-result', `Error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                addResult('status-result', '❌ Failed to check database status', 'error');
+                addResult('status-result', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function forceDatabaseSetup() {
+            clearResults('setup-result');
+            const btn = document.getElementById('setup-btn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Setting up database...';
+            btn.classList.add('loading');
+            
+            addResult('setup-result', '🔄 Starting force database setup...', 'info');
+            
+            try {
+                const response = await fetch('/api/force-database-setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addResult('setup-result', '🎉 Database setup completed successfully!', 'success');
+                    addResult('setup-result', `✅ ${data.message}`, 'success');
+                    
+                    if (data.details) {
+                        addResult('setup-result', '📊 Setup details:', 'info');
+                        for (const [key, value] of Object.entries(data.details)) {
+                            addResult('setup-result', `• ${key}: ${value}`, 'success');
+                        }
+                    }
+                    
+                    addResult('setup-result', '💡 You can now test the survey configuration!', 'info');
+                } else {
+                    addResult('setup-result', '❌ Database setup failed', 'error');
+                    addResult('setup-result', `Error: ${data.message}`, 'error');
+                    
+                    if (data.suggestion) {
+                        addResult('setup-result', `💡 Suggestion: ${data.suggestion}`, 'warning');
+                    }
+                }
+            } catch (error) {
+                addResult('setup-result', '❌ Failed to setup database', 'error');
+                addResult('setup-result', `Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚨 FORCE DATABASE SETUP';
+                btn.classList.remove('loading');
+            }
+        }
+
+        async function testSurveyConfig() {
+            clearResults('test-result');
+            addResult('test-result', '🔄 Testing survey configuration...', 'info');
+            
+            try {
+                // First login
+                const loginResponse = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                if (!loginResponse.ok) {
+                    addResult('test-result', '❌ Login failed - admin user may not exist', 'error');
+                    return;
+                }
+                
+                const loginData = await loginResponse.json();
+                addResult('test-result', '✅ Login successful', 'success');
+                
+                // Test updating survey config
+                const updateData = {
+                    isActive: true,
+                    startDate: new Date().toISOString(),
+                    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    title: 'Policy Awareness Survey',
+                    description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+                    expectedResponses: 145
+                };
+                
+                const updateResponse = await fetch('/api/survey-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${loginData.token}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (updateResponse.ok) {
+                    addResult('test-result', '🎉 Survey configuration update successful!', 'success');
+                    addResult('test-result', '✅ The "Failed to update survey configuration" error should now be fixed!', 'success');
+                } else {
+                    const errorData = await updateResponse.json();
+                    addResult('test-result', '❌ Survey configuration update still failing', 'error');
+                    addResult('test-result', `Error: ${errorData.error || 'Unknown error'}`, 'error');
+                    
+                    if (errorData.suggestion) {
+                        addResult('test-result', `💡 Suggestion: ${errorData.suggestion}`, 'warning');
+                    }
+                }
+                
+            } catch (error) {
+                addResult('test-result', '❌ Error testing survey config', 'error');
+                addResult('test-result', `Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
