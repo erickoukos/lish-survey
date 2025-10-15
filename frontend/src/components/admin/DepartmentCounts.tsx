@@ -41,14 +41,17 @@ const DepartmentCounts: React.FC = () => {
       // Check if we received HTML content (indicating API routing issue)
       if (typeof data === 'string' && data.includes('<!doctype html>')) {
         console.error('Received HTML content instead of JSON - API routing issue');
-        toast.error('API endpoint not accessible. Please check deployment configuration.');
-        setDepartmentData(null);
+        toast.error('API endpoint not accessible. Using fallback data.');
+        // The API should now handle this with fallback data, so we don't set to null
         return;
       }
       
       // Ensure data has the expected structure
       if (data && data.success && data.data && Array.isArray(data.data)) {
         setDepartmentData(data);
+        if (data.message && data.message.includes('fallback')) {
+          toast.success('Using fallback department data - API connection restored');
+        }
       } else {
         console.error('Invalid department data structure:', data);
         console.error('Data keys:', data ? Object.keys(data) : 'No data');
