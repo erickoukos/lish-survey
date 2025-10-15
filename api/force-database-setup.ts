@@ -147,7 +147,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
                 title: 'Policy Awareness Survey',
                 description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
-                expectedResponses: 145
+                expectedResponses: 147 // Total: 7+54+70+5+3+1+1+2+4 = 147
               }
             })
             console.log('Created default survey config')
@@ -159,38 +159,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           throw error
         }
 
-        // Create default department counts
+        // Create default department counts with correct LISH AI LABS structure
         try {
           const existingCounts = await prisma.departmentCount.findMany({
             where: { isActive: true }
           })
           
           if (existingCounts.length === 0) {
-            const defaultDepartments = [
-              { department: 'IT', staffCount: 15 },
-              { department: 'HR', staffCount: 8 },
-              { department: 'Finance', staffCount: 12 },
-              { department: 'Operations', staffCount: 25 },
-              { department: 'Marketing', staffCount: 10 },
-              { department: 'Sales', staffCount: 20 },
-              { department: 'Customer Service', staffCount: 18 },
-              { department: 'Management', staffCount: 12 },
-              { department: 'Administration', staffCount: 6 },
-              { department: 'Legal', staffCount: 4 },
-              { department: 'Quality Assurance', staffCount: 8 },
-              { department: 'Research & Development', staffCount: 7 }
+            const lishDepartments = [
+              { department: 'Head of Department (HODs)', staffCount: 7 },
+              { department: 'Technical Team', staffCount: 54 },
+              { department: 'Data Annotation Team', staffCount: 70 },
+              { department: 'Digital Marketing Department', staffCount: 5 },
+              { department: 'HR & Administration Department', staffCount: 3 },
+              { department: 'Finance & Accounting Department', staffCount: 1 },
+              { department: 'Project Management Department', staffCount: 1 },
+              { department: 'Sanitation Department', staffCount: 2 },
+              { department: 'Security Department', staffCount: 4 }
             ]
 
             await prisma.departmentCount.createMany({
-              data: defaultDepartments.map(dept => ({
+              data: lishDepartments.map(dept => ({
                 department: dept.department,
                 staffCount: dept.staffCount,
                 isActive: true
               }))
             })
-            console.log('Created default department counts')
+            console.log('Created LISH AI LABS department counts')
           } else {
-            console.log('Default department counts already exist')
+            console.log('Department counts already exist')
           }
         } catch (error) {
           console.error('Error with department counts:', error)

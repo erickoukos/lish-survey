@@ -88,6 +88,21 @@ export const adminApi = {
       responseType: 'blob'
     })
     return response.data
+  },
+
+  getDepartmentCounts: async () => {
+    const response = await api.get('/api/department-counts')
+    return response.data
+  },
+
+  updateDepartmentCount: async (id: string, staffCount: number) => {
+    const response = await api.put('/api/department-counts', { id, staffCount })
+    return response.data
+  },
+
+  updateSurveyConfig: async (config: any) => {
+    const response = await api.post('/api/survey-config', config)
+    return response.data
   }
 }
 

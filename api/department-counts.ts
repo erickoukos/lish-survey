@@ -87,20 +87,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (dbError) {
         console.error('Database error in department-counts GET:', dbError)
         
-        // Return default department data if database is not available
+        // Return default LISH AI LABS department data if database is not available
         const defaultDepartments = [
-          { department: 'IT', staffCount: 15, responseCount: 0, remainingCount: 15, responseRate: 0 },
-          { department: 'HR', staffCount: 8, responseCount: 0, remainingCount: 8, responseRate: 0 },
-          { department: 'Finance', staffCount: 12, responseCount: 0, remainingCount: 12, responseRate: 0 },
-          { department: 'Operations', staffCount: 25, responseCount: 0, remainingCount: 25, responseRate: 0 },
-          { department: 'Marketing', staffCount: 10, responseCount: 0, remainingCount: 10, responseRate: 0 },
-          { department: 'Sales', staffCount: 20, responseCount: 0, remainingCount: 20, responseRate: 0 },
-          { department: 'Customer Service', staffCount: 18, responseCount: 0, remainingCount: 18, responseRate: 0 },
-          { department: 'Management', staffCount: 12, responseCount: 0, remainingCount: 12, responseRate: 0 },
-          { department: 'Administration', staffCount: 6, responseCount: 0, remainingCount: 6, responseRate: 0 },
-          { department: 'Legal', staffCount: 4, responseCount: 0, remainingCount: 4, responseRate: 0 },
-          { department: 'Quality Assurance', staffCount: 8, responseCount: 0, remainingCount: 8, responseRate: 0 },
-          { department: 'Research & Development', staffCount: 7, responseCount: 0, remainingCount: 7, responseRate: 0 }
+          { department: 'Head of Department (HODs)', staffCount: 7, responseCount: 0, remainingCount: 7, responseRate: 0 },
+          { department: 'Technical Team', staffCount: 54, responseCount: 0, remainingCount: 54, responseRate: 0 },
+          { department: 'Data Annotation Team', staffCount: 70, responseCount: 0, remainingCount: 70, responseRate: 0 },
+          { department: 'Digital Marketing Department', staffCount: 5, responseCount: 0, remainingCount: 5, responseRate: 0 },
+          { department: 'HR & Administration Department', staffCount: 3, responseCount: 0, remainingCount: 3, responseRate: 0 },
+          { department: 'Finance & Accounting Department', staffCount: 1, responseCount: 0, remainingCount: 1, responseRate: 0 },
+          { department: 'Project Management Department', staffCount: 1, responseCount: 0, remainingCount: 1, responseRate: 0 },
+          { department: 'Sanitation Department', staffCount: 2, responseCount: 0, remainingCount: 2, responseRate: 0 },
+          { department: 'Security Department', staffCount: 4, responseCount: 0, remainingCount: 4, responseRate: 0 }
         ]
         
         const totalExpected = defaultDepartments.reduce((sum, dept) => sum + dept.staffCount, 0)
