@@ -91,8 +91,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Create survey response (with fallback if database is unavailable)
     try {
+      // Ensure we have a valid survey set
+      let surveySet = await prisma.surveySet.findFirst({
+        where: { isActive: true }
+      })
+      
+      if (!surveySet) {
+        // Create a default survey set if none exists
+        surveySet = await prisma.surveySet.create({
+          data: {
+            name: 'Default Survey Set',
+            description: 'Default survey set for responses',
+            isActive: true
+          }
+        })
+      }
+
       const response = await prisma.surveyResponse.create({
         data: {
+          surveySetId: surveySet.id,
+          surveyPeriod: 'default', // Current survey period
           department: data.department,
           awareness: JSON.stringify(data.awareness),
           urgentTrainings: JSON.stringify(data.urgentTrainings),
