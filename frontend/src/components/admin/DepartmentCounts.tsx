@@ -35,12 +35,14 @@ const DepartmentCounts: React.FC = () => {
   const fetchDepartmentCounts = async () => {
     try {
       setLoading(true);
+      console.log('Fetching department counts...');
       const data = await adminApi.getDepartmentCounts();
       console.log('Department counts data:', data);
       
       // Check if we received HTML content (indicating API routing issue)
       if (typeof data === 'string' && data.includes('<!doctype html>')) {
         console.error('Received HTML content instead of JSON - API routing issue');
+        console.error('HTML content preview:', data.substring(0, 200));
         toast.error('API endpoint not accessible. Using fallback data.');
         // The API should now handle this with fallback data, so we don't set to null
         return;

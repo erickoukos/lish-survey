@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app'
+// Detect if we're running locally
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3000' : 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app')
 
 // Add cache-busting to force fresh API calls
 const CACHE_BUST = Date.now()
@@ -10,6 +12,14 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+// Add debugging
+console.log('API Configuration:', {
+  baseURL: API_BASE_URL,
+  isLocal,
+  hostname: window.location.hostname,
+  env: import.meta.env.VITE_API_URL
 })
 
 // Request interceptor to add auth token
@@ -92,14 +102,14 @@ export const adminApi = {
 
   getDepartmentCounts: async () => {
     try {
-      // Try the main departments endpoint first
-      const response = await api.get('/api/departments')
+      // Try the department-counts endpoint first
+      const response = await api.get('/api/department-counts')
       return response.data
     } catch (error) {
-      console.warn('Primary departments API failed, trying fallback:', error)
+      console.warn('Primary department-counts API failed, trying fallback:', error)
       try {
         // Fallback to simple endpoint
-        const response = await api.get('/api/departments-simple')
+        const response = await api.get('/api/department-counts-simple')
         return response.data
       } catch (fallbackError) {
         console.error('All department APIs failed:', fallbackError)
