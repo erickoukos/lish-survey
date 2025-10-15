@@ -39,10 +39,15 @@ const DepartmentCounts: React.FC = () => {
       console.log('Department counts data:', data);
       
       // Ensure data has the expected structure
-      if (data && data.success && data.data) {
+      if (data && data.success && data.data && Array.isArray(data.data)) {
         setDepartmentData(data);
       } else {
         console.error('Invalid department data structure:', data);
+        console.error('Data keys:', data ? Object.keys(data) : 'No data');
+        console.error('Data.success:', data?.success);
+        console.error('Data.data:', data?.data);
+        console.error('Data.data type:', typeof data?.data);
+        console.error('Data.data is array:', Array.isArray(data?.data));
         toast.error('Invalid department data received');
         setDepartmentData(null);
       }
