@@ -9,6 +9,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Content-Type', 'application/json')
   
+  // Add a simple health check
+  if (req.url === '/api/department-counts/health') {
+    return res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      message: 'Department counts API is working' 
+    })
+  }
+  
   if (req.method === 'OPTIONS') {
     return res.status(200).end()
   }
