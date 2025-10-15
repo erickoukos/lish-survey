@@ -272,7 +272,7 @@ const SurveyConfig: React.FC = () => {
               type="number"
               min="1"
               value={config.expectedResponses}
-              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || 100 })}
+              onChange={(e) => setConfig({ ...config, expectedResponses: parseInt(e.target.value) || config.expectedResponses })}
               className="form-input w-32"
               placeholder="100"
             />

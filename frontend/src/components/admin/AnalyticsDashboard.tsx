@@ -153,6 +153,7 @@ const AnalyticsDashboard: React.FC = () => {
   const CHART_COLORS = [COLORS.primary, COLORS.success, COLORS.warning, COLORS.danger, COLORS.purple, COLORS.teal, COLORS.orange, COLORS.pink, COLORS.indigo, COLORS.emerald]
 
   const totalResponses = filteredResponses.length
+  // Prioritize department counts data over survey config for expected responses
   const expectedResponses = departmentCountsData?.totalExpected || surveyConfig?.config?.expectedResponses || 100
   const progressPercentage = expectedResponses > 0 ? Math.min((totalResponses / expectedResponses) * 100, 100) : 0
   

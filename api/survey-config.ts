@@ -147,31 +147,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (existingConfig) {
           console.log('Updating existing configuration...')
           // Update existing configuration
+          const updateData: any = {
+            isActive: data.isActive,
+            startDate: startDate,
+            endDate: endDate,
+            title: data.title || 'Policy Awareness Survey',
+            description: data.description
+          }
+          
+          // Only update expectedResponses if it's provided and valid
+          if (data.expectedResponses !== undefined && data.expectedResponses !== null) {
+            updateData.expectedResponses = data.expectedResponses
+          }
+          
           config = await prisma.surveyConfig.update({
             where: { id: 'default' },
-            data: {
-              isActive: data.isActive,
-              startDate: startDate,
-              endDate: endDate,
-              title: data.title || 'Policy Awareness Survey',
-              description: data.description,
-              expectedResponses: data.expectedResponses || 100
-            }
+            data: updateData
           })
           console.log('Configuration updated successfully')
         } else {
           console.log('Creating new configuration...')
           // Create new configuration
+          const createData: any = {
+            id: 'default',
+            isActive: data.isActive,
+            startDate: startDate,
+            endDate: endDate,
+            title: data.title || 'Policy Awareness Survey',
+            description: data.description
+          }
+          
+          // Only set expectedResponses if it's provided and valid
+          if (data.expectedResponses !== undefined && data.expectedResponses !== null) {
+            createData.expectedResponses = data.expectedResponses
+          } else {
+            createData.expectedResponses = 100 // Default only for new configs
+          }
+          
           config = await prisma.surveyConfig.create({
-            data: {
-              id: 'default',
-              isActive: data.isActive,
-              startDate: startDate,
-              endDate: endDate,
-              title: data.title || 'Policy Awareness Survey',
-              description: data.description,
-              expectedResponses: data.expectedResponses || 100
-            }
+            data: createData
           })
           console.log('Configuration created successfully')
         }
