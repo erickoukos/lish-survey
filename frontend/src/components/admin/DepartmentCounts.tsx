@@ -38,6 +38,14 @@ const DepartmentCounts: React.FC = () => {
       const data = await adminApi.getDepartmentCounts();
       console.log('Department counts data:', data);
       
+      // Check if we received HTML content (indicating API routing issue)
+      if (typeof data === 'string' && data.includes('<!doctype html>')) {
+        console.error('Received HTML content instead of JSON - API routing issue');
+        toast.error('API endpoint not accessible. Please check deployment configuration.');
+        setDepartmentData(null);
+        return;
+      }
+      
       // Ensure data has the expected structure
       if (data && data.success && data.data && Array.isArray(data.data)) {
         setDepartmentData(data);
@@ -130,13 +138,30 @@ const DepartmentCounts: React.FC = () => {
   if (!departmentData || !departmentData.data) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">Failed to load department data</p>
-        <button 
-          onClick={fetchDepartmentCounts}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Retry
-        </button>
+        <div className="max-w-md mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
+            <div className="flex items-center mb-3">
+              <svg className="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <h3 className="text-lg font-medium text-red-800">API Connection Issue</h3>
+            </div>
+            <p className="text-red-700 text-sm mb-4">
+              The department data API is not accessible. This is likely due to deployment configuration issues.
+            </p>
+            <div className="text-left text-sm text-red-600 space-y-1">
+              <p>• Check if Vercel authentication protection is disabled</p>
+              <p>• Verify API endpoints are properly deployed</p>
+              <p>• Ensure database migration has been run</p>
+            </div>
+          </div>
+          <button 
+            onClick={fetchDepartmentCounts}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Retry Connection
+          </button>
+        </div>
       </div>
     );
   }

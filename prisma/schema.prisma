@@ -82,3 +82,35 @@ model DepartmentCount {
 
   @@map("department_counts")
 }
+
+model SurveySection {
+  id                String   @id @default(uuid())
+  sectionKey        String   @unique
+  title             String
+  description       String?
+  order             Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("survey_sections")
+}
+
+model SurveyQuestion {
+  id                String   @id @default(uuid())
+  section           String
+  questionType      String
+  questionText      String
+  questionNumber    Int
+  isRequired        Boolean  @default(true)
+  options           String?
+  validationRules   String?
+  placeholder       String?
+  helpText          String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([section, questionNumber])
+  @@map("survey_questions")
+}
