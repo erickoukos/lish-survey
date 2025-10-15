@@ -36,10 +36,20 @@ const DepartmentCounts: React.FC = () => {
     try {
       setLoading(true);
       const data = await adminApi.getDepartmentCounts();
-      setDepartmentData(data);
+      console.log('Department counts data:', data);
+      
+      // Ensure data has the expected structure
+      if (data && data.success && data.data) {
+        setDepartmentData(data);
+      } else {
+        console.error('Invalid department data structure:', data);
+        toast.error('Invalid department data received');
+        setDepartmentData(null);
+      }
     } catch (error) {
       console.error('Error fetching department counts:', error);
       toast.error('Failed to load department data');
+      setDepartmentData(null);
     } finally {
       setLoading(false);
     }
@@ -112,7 +122,7 @@ const DepartmentCounts: React.FC = () => {
     );
   }
 
-  if (!departmentData) {
+  if (!departmentData || !departmentData.data) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">Failed to load department data</p>
@@ -127,6 +137,37 @@ const DepartmentCounts: React.FC = () => {
   }
 
   const { data: departments, totalExpected, totalResponses, totalRemaining, overallResponseRate } = departmentData;
+  
+  // Ensure departments is an array
+  if (!Array.isArray(departments)) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Invalid department data format</p>
+        <button 
+          onClick={fetchDepartmentCounts}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Handle empty departments array
+  if (departments.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No department data available</p>
+        <p className="text-sm text-gray-400 mt-2">Please run the database setup to create department data</p>
+        <button 
+          onClick={fetchDepartmentCounts}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -250,7 +291,7 @@ const DepartmentCounts: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {departments.map((dept) => (
+              {departments && departments.length > 0 ? departments.map((dept) => (
                 <tr key={dept.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{dept.department}</div>
@@ -286,7 +327,13 @@ const DepartmentCounts: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    No department data available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
