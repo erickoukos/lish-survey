@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log('Department counts API called:', req.method, req.url, new Date().toISOString())
+  console.log('Test department counts API called:', req.method, req.url, new Date().toISOString())
   
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -15,9 +15,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   if (req.method === 'GET') {
     try {
-      console.log('Processing GET request for department counts')
-      
-      // Return hardcoded LISH AI LABS department data
       const departments = [
         { id: 'hod-1', department: 'Head of Department (HODs)', staffCount: 7, responseCount: 0, remainingCount: 7, responseRate: 0, isActive: true },
         { id: 'tech-1', department: 'Technical Team', staffCount: 54, responseCount: 0, remainingCount: 54, responseRate: 0, isActive: true },
@@ -31,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ]
       
       const totalExpected = departments.reduce((sum, dept) => sum + dept.staffCount, 0)
-      const totalResponses = 0 // No responses yet
+      const totalResponses = 0
       const totalRemaining = totalExpected - totalResponses
       
       const response = {
@@ -42,19 +39,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         totalRemaining,
         overallResponseRate: 0,
         count: departments.length,
-        message: 'Department counts API working correctly'
+        message: 'Test API endpoint working correctly'
       }
       
-      console.log('Department counts response:', JSON.stringify(response, null, 2))
-      console.log('Total expected responses:', totalExpected)
-      
+      console.log('Test department counts response:', JSON.stringify(response, null, 2))
       return res.status(200).json(response)
     } catch (error) {
-      console.error('Department counts API error:', error)
+      console.error('Test department counts API error:', error)
       return res.status(500).json({
         success: false,
         error: 'Internal server error',
-        message: 'Failed to process department counts'
+        message: 'Failed to process test department counts'
       })
     }
   }
