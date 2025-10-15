@@ -123,6 +123,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           throw connectError
         }
         
+        // Check if SurveyConfig table exists by trying a simple query
+        try {
+          await prisma.surveyConfig.findFirst()
+          console.log('SurveyConfig table exists and is accessible')
+        } catch (tableError) {
+          console.error('SurveyConfig table error:', tableError)
+          throw new Error(`SurveyConfig table not accessible: ${tableError.message}`)
+        }
+        
         // First, try to find existing config
         console.log('Looking for existing config with id: default')
         const existingConfig = await prisma.surveyConfig.findUnique({
@@ -187,6 +196,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           await prisma.$disconnect()
         } catch (disconnectError) {
           console.error('Error disconnecting from database:', disconnectError)
+        }
+        
+        // Check if it's a table not found error
+        if (dbError instanceof Error && dbError.message.includes('table') && dbError.message.includes('does not exist')) {
+          return res.status(500).json({
+            error: 'Database schema issue',
+            message: 'SurveyConfig table does not exist. Please run database migration.',
+            details: 'The database tables need to be created. Please contact the administrator to run the database setup.',
+            suggestion: 'Run: node scripts/setup-database-tables.js'
+          })
         }
         
         return res.status(500).json({
