@@ -50,6 +50,7 @@ model SurveyConfig {
   endDate           DateTime
   title             String   @default("Policy Awareness Survey")
   description       String?
+  expectedResponses Int      @default(100)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -69,4 +70,15 @@ model AdminUser {
   updatedAt         DateTime @updatedAt
 
   @@map("admin_users")
+}
+
+model DepartmentCount {
+  id                String   @id @default(uuid())
+  department        String
+  staffCount        Int
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("department_counts")
 }
