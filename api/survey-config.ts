@@ -267,42 +267,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       try {
-        // Get count of existing responses before reset
-        const responseCount = await prisma.surveyResponse.count()
-
-        // Create a new survey period for the reset
-        const newSurveyPeriod = `survey_${Date.now()}`
-        
-        // Update all existing responses to mark them as from previous period
-        await prisma.surveyResponse.updateMany({
-          where: { surveyPeriod: 'default' },
-          data: { surveyPeriod: newSurveyPeriod }
+        // Get the active survey set
+        const activeSurveySet = await prisma.surveySet.findFirst({
+          where: { isActive: true }
         })
 
-        // Reset survey configuration to default
-        await prisma.surveyConfig.deleteMany({})
+        if (!activeSurveySet) {
+          return res.status(404).json({
+            error: 'No active survey set found',
+            message: 'Cannot reset survey - no active survey set found'
+          })
+        }
 
+        // Get count of existing responses before reset
+        const responseCount = await prisma.surveyResponse.count({
+          where: { surveySetId: activeSurveySet.id }
+        })
+
+        // Delete all responses for the active survey set
+        await prisma.surveyResponse.deleteMany({
+          where: { surveySetId: activeSurveySet.id }
+        })
+
+        // Reset survey configuration for the active survey set
+        await prisma.surveyConfig.deleteMany({
+          where: { surveySetId: activeSurveySet.id }
+        })
+
+        // Create new configuration for the active survey set
         const startDate = new Date()
         const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         const defaultConfig = await prisma.surveyConfig.create({
           data: {
-            id: 'default',
+            surveySetId: activeSurveySet.id,
             isActive: true,
             startDate: startDate,
             endDate: endDate,
             title: 'Policy Awareness Survey',
-            description: 'LISH AI LABS Policy Awareness & Training Needs Survey'
+            description: 'LISH AI LABS Policy Awareness & Training Needs Survey',
+            expectedResponses: 100
           }
         })
 
-        console.log(`Survey reset by admin ${payload.username}: Configuration reset, ${responseCount} responses moved to period ${newSurveyPeriod}`)
+        console.log(`Survey reset by admin ${payload.username}: Configuration reset for survey set "${activeSurveySet.name}", ${responseCount} responses deleted`)
 
         return res.status(200).json({
           success: true,
-          message: `Survey configuration reset successfully. ${responseCount} previous responses preserved and accessible under period ${newSurveyPeriod}.`,
+          message: `Survey configuration reset successfully. ${responseCount} responses were deleted from "${activeSurveySet.name}".`,
           config: defaultConfig,
-          preservedResponses: responseCount,
-          previousSurveyPeriod: newSurveyPeriod
+          deletedResponses: responseCount,
+          surveySet: activeSurveySet.name
         })
       } catch (dbError) {
         console.error('Database error in survey-config DELETE:', dbError)

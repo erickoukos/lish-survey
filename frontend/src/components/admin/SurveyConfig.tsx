@@ -93,12 +93,13 @@ const SurveyConfig: React.FC = () => {
   const handleReset = async () => {
     setResetting(true)
     try {
-      await surveyApi.resetSurvey()
-      toast.success('Survey has been reset successfully')
+      const result = await surveyApi.resetSurvey()
+      toast.success(result.message || 'Survey has been reset successfully')
       await fetchConfig() // Refresh the config
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error resetting survey:', error)
-      toast.error('Failed to reset survey')
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to reset survey'
+      toast.error(errorMessage)
     } finally {
       setResetting(false)
       setShowResetConfirm(false)
