@@ -10,7 +10,8 @@ import {
   FileText, 
   BarChart3,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react'
 
 interface SurveySet {
@@ -34,13 +35,17 @@ const SurveySetManager: React.FC = () => {
   const queryClient = useQueryClient()
 
   // Fetch survey sets
-  const { data: surveySetsData, isLoading } = useQuery({
+  const { data: surveySetsData, isLoading, refetch } = useQuery({
     queryKey: ['surveySets'],
     queryFn: async () => {
       const response = await fetch('/api/survey-sets')
       if (!response.ok) throw new Error('Failed to fetch survey sets')
       return response.json()
-    }
+    },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   })
 
   // Create survey set mutation
@@ -188,8 +193,20 @@ const SurveySetManager: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Survey Set Manager</h1>
-          <p className="text-gray-600">Create and manage different survey versions with their own questions and responses.</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Survey Set Manager</h1>
+              <p className="text-gray-600">Create and manage different survey versions with their own questions and responses.</p>
+            </div>
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
+              title="Refresh data"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Create New Survey Set */}
