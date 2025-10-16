@@ -10,6 +10,7 @@ import SurveyConfig from './admin/SurveyConfig'
 import QuestionManager from './admin/QuestionManager'
 import DepartmentCounts from './admin/DepartmentCounts'
 import SurveySetManager from './admin/SurveySetManager'
+import { useQuery } from '@tanstack/react-query'
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth()
@@ -26,6 +27,18 @@ const AdminDashboard: React.FC = () => {
     queryFn: () => adminApi.getResponses(filters),
     enabled: currentView === 'table'
   })
+
+  // Fetch survey sets to show current active one
+  const { data: surveySetsData } = useQuery({
+    queryKey: ['surveySets'],
+    queryFn: async () => {
+      const response = await fetch('/api/survey-sets')
+      if (!response.ok) throw new Error('Failed to fetch survey sets')
+      return response.json()
+    }
+  })
+
+  const activeSurveySet = surveySetsData?.data?.find((set: any) => set.isActive)
 
   const handleExport = async () => {
     try {
@@ -72,6 +85,14 @@ const AdminDashboard: React.FC = () => {
           <p className="text-secondary-600">
             Welcome back, {user?.username}
           </p>
+          {activeSurveySet && (
+            <div className="mt-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                Active Survey: {activeSurveySet.name}
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="flex space-x-4">

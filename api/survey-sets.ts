@@ -144,6 +144,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       if (isActive !== undefined) {
         updateData.isActive = Boolean(isActive)
+        
+        // If setting this survey set as active, deactivate all others
+        if (isActive === true) {
+          await prisma.surveySet.updateMany({
+            where: { 
+              id: { not: id },
+              isActive: true 
+            },
+            data: { isActive: false }
+          })
+        }
       }
 
       const surveySet = await prisma.surveySet.update({

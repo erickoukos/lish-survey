@@ -25,17 +25,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === 'GET') {
       try {
-        // Get current survey configuration
+        // Get current survey configuration for the active survey set
+        const activeSurveySet = await prisma.surveySet.findFirst({
+          where: { isActive: true }
+        })
+
+        if (!activeSurveySet) {
+          return res.status(404).json({
+            success: false,
+            error: 'No active survey set found'
+          })
+        }
+
         const config = await prisma.surveyConfig.findFirst({
+          where: { surveySetId: activeSurveySet.id },
           orderBy: { createdAt: 'desc' }
         })
 
         if (!config) {
-          // Create default configuration if none exists
+          // Create default configuration for the active survey set
           const startDate = new Date()
           const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
           const defaultConfig = await prisma.surveyConfig.create({
             data: {
+              surveySetId: activeSurveySet.id,
               isActive: true,
               startDate: startDate,
               endDate: endDate,
@@ -132,10 +145,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           throw new Error(`SurveyConfig table not accessible: ${tableError.message}`)
         }
         
-        // First, try to find existing config
-        console.log('Looking for existing config with id: default')
-        const existingConfig = await prisma.surveyConfig.findUnique({
-          where: { id: 'default' }
+        // First, try to find existing config for the active survey set
+        const activeSurveySet = await prisma.surveySet.findFirst({
+          where: { isActive: true }
+        })
+        
+        if (!activeSurveySet) {
+          throw new Error('No active survey set found')
+        }
+        
+        console.log('Active survey set:', activeSurveySet.name, activeSurveySet.id)
+        
+        // Look for existing config for the active survey set
+        const existingConfig = await prisma.surveyConfig.findFirst({
+          where: { surveySetId: activeSurveySet.id }
         })
         console.log('Existing config found:', !!existingConfig)
 
@@ -161,7 +184,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
           
           config = await prisma.surveyConfig.update({
-            where: { id: 'default' },
+            where: { id: existingConfig.id },
             data: updateData
           })
           console.log('Configuration updated successfully')
@@ -169,7 +192,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('Creating new configuration...')
           // Create new configuration
           const createData: any = {
-            id: 'default',
+            surveySetId: activeSurveySet.id,
             isActive: data.isActive,
             startDate: startDate,
             endDate: endDate,

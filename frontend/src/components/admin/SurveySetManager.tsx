@@ -119,6 +119,32 @@ const SurveySetManager: React.FC = () => {
     }
   })
 
+  // Set active survey set mutation
+  const setActiveMutation = useMutation({
+    mutationFn: async (surveySetId: string) => {
+      const response = await fetch('/api/survey-sets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ 
+          id: surveySetId,
+          isActive: true
+        })
+      })
+      if (!response.ok) throw new Error('Failed to set active survey set')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['surveySets'] })
+      toast.success('Survey set activated successfully!')
+    },
+    onError: () => {
+      toast.error('Failed to activate survey set')
+    }
+  })
+
   const handleCreateSurveySet = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newSurveySet.name.trim()) {
@@ -136,6 +162,10 @@ const SurveySetManager: React.FC = () => {
 
   const handleResetResponses = (surveySetId: string) => {
     resetMutation.mutate(surveySetId)
+  }
+
+  const handleSetActive = (surveySetId: string) => {
+    setActiveMutation.mutate(surveySetId)
   }
 
   const surveySets: SurveySet[] = surveySetsData?.data || []
@@ -279,6 +309,17 @@ const SurveySetManager: React.FC = () => {
 
               {/* Actions */}
               <div className="space-y-2">
+                {!surveySet.isActive && (
+                  <button
+                    onClick={() => handleSetActive(surveySet.id)}
+                    disabled={setActiveMutation.isPending}
+                    className="w-full px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4 inline mr-2" />
+                    {setActiveMutation.isPending ? 'Activating...' : 'Set as Active'}
+                  </button>
+                )}
+                
                 <button
                   onClick={() => {
                     // Navigate to questions management for this survey set

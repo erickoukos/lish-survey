@@ -39,8 +39,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const skip = (page - 1) * limit
 
     try {
+      // Get the active survey set
+      const activeSurveySet = await prisma.surveySet.findFirst({
+        where: { isActive: true }
+      })
+
+      if (!activeSurveySet) {
+        return res.status(404).json({
+          success: false,
+          error: 'No active survey set found'
+        })
+      }
+
       // Build where clause
-      const where: any = {}
+      const where: any = {
+        surveySetId: activeSurveySet.id
+      }
       if (department && department !== 'all') {
         where.department = department
       }
