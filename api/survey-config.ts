@@ -5,8 +5,8 @@ import { z } from 'zod'
 
 const surveyConfigSchema = z.object({
   isActive: z.boolean(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
+  startDate: z.string(),
+  endDate: z.string(),
   title: z.string().optional(),
   description: z.string().optional(),
   expectedResponses: z.number().min(1).optional()
@@ -133,7 +133,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('Database connection successful')
         } catch (connectError) {
           console.error('Database connection failed:', connectError)
-          throw connectError
+          return res.status(500).json({
+            error: 'Database connection failed',
+            message: 'Cannot connect to database',
+            details: connectError instanceof Error ? connectError.message : 'Unknown connection error'
+          })
         }
         
         // Check if SurveyConfig table exists by trying a simple query
@@ -142,7 +146,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('SurveyConfig table exists and is accessible')
         } catch (tableError) {
           console.error('SurveyConfig table error:', tableError)
-          throw new Error(`SurveyConfig table not accessible: ${tableError.message}`)
+          return res.status(500).json({
+            error: 'Database table not accessible',
+            message: 'SurveyConfig table not accessible',
+            details: tableError instanceof Error ? tableError.message : 'Unknown table error'
+          })
         }
         
         // First, try to find existing config for the active survey set
@@ -151,7 +159,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
         
         if (!activeSurveySet) {
-          throw new Error('No active survey set found')
+          return res.status(404).json({
+            error: 'No active survey set found',
+            message: 'Cannot update configuration - no active survey set found',
+            suggestion: 'Please create or activate a survey set first'
+          })
         }
         
         console.log('Active survey set:', activeSurveySet.name, activeSurveySet.id)

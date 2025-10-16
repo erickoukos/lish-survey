@@ -2,7 +2,8 @@ import axios from 'axios'
 
 // Detect if we're running locally
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-const API_BASE_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3000' : 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app')
+const isProduction = window.location.hostname === 'emp-survey.lishailabs.com'
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3000' : (isProduction ? 'https://emp-survey.lishailabs.com' : 'https://lish-survey-rbkg4jfau-lish-ai-labs.vercel.app'))
 
 // Add cache-busting to force fresh API calls
 const CACHE_BUST = Date.now()
@@ -62,8 +63,15 @@ export const surveyApi = {
   },
 
   updateSurveyConfig: async (config: any) => {
-    const response = await api.post('/api/survey-config', config)
-    return response.data
+    try {
+      console.log('API: Updating survey config:', config)
+      const response = await api.post('/api/survey-config', config)
+      console.log('API: Survey config update response:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('API: Survey config update failed:', error)
+      throw error
+    }
   },
 
   resetSurvey: async () => {
@@ -102,18 +110,22 @@ export const adminApi = {
 
   getDepartmentCounts: async () => {
     try {
-      // Try the department-counts endpoint first
+      console.log('API: Fetching department counts from:', `${API_BASE_URL}/api/department-counts`)
       const response = await api.get('/api/department-counts')
+      console.log('API: Department counts response:', response.data)
       return response.data
     } catch (error) {
       console.warn('Primary department-counts API failed, trying fallback:', error)
       try {
         // Fallback to simple endpoint
+        console.log('API: Trying fallback endpoint:', `${API_BASE_URL}/api/department-counts-simple`)
         const response = await api.get('/api/department-counts-simple')
+        console.log('API: Fallback department counts response:', response.data)
         return response.data
       } catch (fallbackError) {
         console.error('All department APIs failed:', fallbackError)
         // Return hardcoded data as last resort
+        console.log('API: Using hardcoded fallback data')
         return {
           success: true,
           data: [
