@@ -67,7 +67,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         where,
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit
+        take: limit,
+        include: {
+          surveySet: {
+            select: {
+              name: true,
+              isActive: true
+            }
+          }
+        }
       })
 
       // Calculate pagination info

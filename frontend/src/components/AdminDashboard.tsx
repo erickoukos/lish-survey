@@ -91,6 +91,9 @@ const AdminDashboard: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                 Active Survey: {activeSurveySet.name}
               </span>
+              <div className="mt-1 text-xs text-gray-500">
+                {activeSurveySet._count?.responses || 0} responses • {activeSurveySet._count?.sections || 0} sections • {activeSurveySet._count?.questions || 0} questions
+              </div>
             </div>
           )}
         </div>

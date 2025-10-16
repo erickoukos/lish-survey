@@ -144,7 +144,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(201).json({
         success: true,
         id: response.id,
-        message: 'Survey response submitted successfully'
+        message: 'Survey response submitted successfully',
+        surveySet: surveySet.name
       })
     } catch (dbError) {
       console.error('Database error when creating survey response:', dbError)

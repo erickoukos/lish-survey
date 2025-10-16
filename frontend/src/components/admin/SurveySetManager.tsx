@@ -199,7 +199,10 @@ const SurveySetManager: React.FC = () => {
               <p className="text-gray-600">Create and manage different survey versions with their own questions and responses.</p>
             </div>
             <button
-              onClick={() => refetch()}
+              onClick={() => {
+                refetch()
+                toast.success('Data refreshed successfully!')
+              }}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center"
               title="Refresh data"
             >
