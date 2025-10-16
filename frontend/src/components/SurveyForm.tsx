@@ -654,8 +654,8 @@ const SurveyForm: React.FC = () => {
                         digitalSkillsNeeds: formData.digitalSkillsNeeds || [],
                         professionalDevNeeds: formData.professionalDevNeeds || [],
                         observedIssues: formData.observedIssues || [],
-                        prioritizedPolicies: JSON.stringify(formData.prioritizedPolicies || []),
-                        policyChallenges: JSON.stringify(formData.policyChallenges || []),
+                        prioritizedPolicies: formData.prioritizedPolicies || [],
+                        policyChallenges: formData.policyChallenges || [],
                         facedUnsureSituation: Boolean(formData.facedUnsureSituation)
                       }
                       

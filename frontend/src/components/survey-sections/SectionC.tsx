@@ -21,7 +21,8 @@ const SectionC: React.FC<SectionCProps> = ({ form }) => {
     'Finance & Financial Wellness',
     'Work-Life Balance & Mental Health Awareness',
     'Digital Workplace & Skills',
-    'Soft Skills'
+    'Soft Skills',
+    'Others'
   ]
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
@@ -62,28 +63,16 @@ const SectionC: React.FC<SectionCProps> = ({ form }) => {
           ))}
         </div>
         
-        <div className="mt-4">
-          <label className="flex items-center space-x-3 p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 cursor-pointer">
+        {urgentTrainings.includes('Others') && (
+          <div className="mt-3">
             <input
-              type="checkbox"
-              checked={urgentTrainings.includes('Others')}
-              onChange={(e) => handleCheckboxChange('Others', e.target.checked)}
-              className="w-4 h-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
+              type="text"
+              {...register('urgentTrainingsOther')}
+              placeholder="Please specify other training needs"
+              className="form-input w-full"
             />
-            <span className="text-sm text-secondary-700">Others (please specify)</span>
-          </label>
-          
-          {urgentTrainings.includes('Others') && (
-            <div className="mt-3">
-              <input
-                type="text"
-                {...register('urgentTrainingsOther')}
-                placeholder="Please specify other training needs"
-                className="form-input w-full"
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
         
         {errors.urgentTrainings && (
           <p className="form-error">{errors.urgentTrainings.message}</p>

@@ -36,7 +36,8 @@ export const urgentTrainingsEnum = z.enum([
   'Finance & Financial Wellness',
   'Work-Life Balance & Mental Health Awareness',
   'Digital Workplace & Skills',
-  'Soft Skills'
+  'Soft Skills',
+  'Others'
 ])
 
 export const financeWellnessNeedsEnum = z.enum([

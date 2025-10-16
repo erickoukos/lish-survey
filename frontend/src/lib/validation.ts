@@ -29,14 +29,15 @@ export const awarenessSchema = z.object({
 export const urgentTrainingsEnum = z.enum([
   'Anti-Social Behavior Policy',
   'Anti-Discrimination Policy',
-  'Sexual Harassment Prevention',
+  'Sexual and Other forms of harassment Policy',
   'Safeguarding Policy',
   'HR Policy Manual',
   'Code of Conduct',
   'Finance & Financial Wellness',
   'Work-Life Balance & Mental Health Awareness',
   'Digital Workplace & Skills',
-  'Soft Skills'
+  'Soft Skills',
+  'Others'
 ])
 
 export const financeWellnessNeedsEnum = z.enum([
