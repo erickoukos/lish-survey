@@ -1,3 +1,6 @@
 node_modules
 .vercel
 .env*.local
+
+# Security: Admin setup script contains sensitive credentials
+scripts/setup-secure-admin.js

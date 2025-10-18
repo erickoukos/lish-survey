@@ -176,6 +176,10 @@ CORS_ORIGINS="http://localhost:3000,https://your-frontend-domain.vercel.app"
 
 4. **Set Up Secure Admin User:**
    ```bash
+   # First, copy the template to create the actual script
+   cp scripts/setup-secure-admin.js.template scripts/setup-secure-admin.js
+   
+   # Then run the setup
    npm run setup:secure-admin
    ```
    This will generate a strong random password and create an admin user in the database.
@@ -214,6 +218,10 @@ npm run dev
 
 5. **Set Up Secure Admin User:**
    ```bash
+   # First, copy the template to create the actual script
+   cp scripts/setup-secure-admin.js.template scripts/setup-secure-admin.js
+   
+   # Then run the setup
    npm run setup:secure-admin
    ```
    This will generate a strong random password and create an admin user in the database.
