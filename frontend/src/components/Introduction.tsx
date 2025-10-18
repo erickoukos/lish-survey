@@ -10,6 +10,8 @@ interface IntroductionProps {
 }
 
 const Introduction: React.FC<IntroductionProps> = ({ surveyConfig }) => {
+  console.log('Introduction component - surveyConfig:', surveyConfig)
+  
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-6 sm:mb-8">
@@ -31,10 +33,18 @@ const Introduction: React.FC<IntroductionProps> = ({ surveyConfig }) => {
         </p>
         
         {/* Countdown Timer */}
-        {surveyConfig && surveyConfig.isActive && (
+        {surveyConfig && surveyConfig.isActive && surveyConfig.endDate ? (
           <div className="mb-6 sm:mb-8">
             <CountdownTimer 
               endDate={surveyConfig.endDate} 
+              className="max-w-2xl mx-auto"
+            />
+          </div>
+        ) : (
+          // Fallback countdown if no config is available
+          <div className="mb-6 sm:mb-8">
+            <CountdownTimer 
+              endDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()} 
               className="max-w-2xl mx-auto"
             />
           </div>

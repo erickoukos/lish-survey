@@ -34,15 +34,18 @@ const SurveyForm: React.FC = () => {
     const checkSurveyAvailability = async () => {
       try {
         const response = await surveyApi.getSurveyConfig()
+        console.log('Survey config response:', response)
         setSurveyConfig(response.config)
       } catch (error) {
         console.error('Error fetching survey config:', error)
-        // If we can't fetch config, assume survey is available
-        setSurveyConfig({
+        // If we can't fetch config, assume survey is available with a default end date
+        const defaultConfig = {
           isActive: true,
           startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        })
+          endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+        }
+        console.log('Using default survey config:', defaultConfig)
+        setSurveyConfig(defaultConfig)
       } finally {
         setIsLoadingConfig(false)
       }
