@@ -370,6 +370,12 @@ const SurveyForm: React.FC = () => {
             confidenceLevel: formData.confidenceLevel,
             facedUnsureSituation: formData.facedUnsureSituation
           })
+        } else if (formData.facedUnsureSituation === true && (!formData.unsureSituationDescription || formData.unsureSituationDescription.trim() === '')) {
+          isValid = false
+          console.log('Section G validation failed - Yes selected but no details provided:', {
+            facedUnsureSituation: formData.facedUnsureSituation,
+            unsureSituationDescription: formData.unsureSituationDescription
+          })
         } else if (formData.professionalDevNeeds && formData.professionalDevNeeds.includes('Others') && (!formData.professionalDevOther || formData.professionalDevOther.trim() === '')) {
           isValid = false
           console.log('Section G validation failed - Others selected but no details provided:', {

@@ -148,9 +148,9 @@ DATABASE_URL="postgresql://username:password@localhost:5432/lish_survey?schema=p
 # JWT Secret (generate a strong secret for production)
 JWT_SECRET="your-super-secret-jwt-key-here"
 
-# Admin Credentials
-ADMIN_USERNAME="admin"
-ADMIN_PASSWORD="lish2025"
+# Admin Credentials - REMOVED FOR SECURITY
+# Admin users are now managed through the database
+# Run 'node scripts/setup-secure-admin.js' to create admin user
 
 # CORS Origins
 CORS_ORIGINS="http://localhost:3000,https://your-frontend-domain.vercel.app"
@@ -173,6 +173,13 @@ CORS_ORIGINS="http://localhost:3000,https://your-frontend-domain.vercel.app"
    npm run db:generate
    npm run db:push
    ```
+
+4. **Set Up Secure Admin User:**
+   ```bash
+   npm run setup:secure-admin
+   ```
+   This will generate a strong random password and create an admin user in the database.
+   **IMPORTANT:** Save the generated password securely - it won't be shown again!
 
 ### 3. Local Development
 
@@ -204,6 +211,13 @@ npm run dev
    ```bash
    npx prisma db push
    ```
+
+5. **Set Up Secure Admin User:**
+   ```bash
+   npm run setup:secure-admin
+   ```
+   This will generate a strong random password and create an admin user in the database.
+   **IMPORTANT:** Save the generated password securely - it won't be shown again!
 
 ## Database Schema
 

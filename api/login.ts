@@ -83,72 +83,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         })
       } else {
-        // Fallback to environment variables for initial setup
-        console.log('No admin user found in database, using fallback authentication')
-        
-        const fallbackUsername = process.env.ADMIN_USERNAME || 'admin'
-        const fallbackPassword = process.env.ADMIN_PASSWORD || 'lish2025'
-
-        if (username !== fallbackUsername || password !== fallbackPassword) {
-          return res.status(401).json({
-            error: 'Invalid credentials'
-          })
-        }
-
-        // Generate JWT token for fallback user
-        const token = generateToken({
-          userId: 'fallback-admin',
-          username: fallbackUsername,
-          role: 'admin'
-        })
-
-        console.log(`Fallback admin login successful: ${username}`)
-
-        return res.status(200).json({
-          success: true,
-          token,
-          user: {
-            id: 'fallback-admin',
-            username: fallbackUsername,
-            fullName: 'System Administrator',
-            email: 'admin@lishailabs.com',
-            role: 'admin'
-          }
+        // No admin user found in database
+        console.log('No admin user found in database')
+        return res.status(401).json({
+          error: 'No admin user found. Please contact system administrator to set up admin access.'
         })
       }
 
     } catch (dbError) {
-      console.error('Database error during login, using fallback:', dbError)
+      console.error('Database error during login:', dbError)
       
-      // Fallback to environment variables when database is not available
-      const fallbackUsername = process.env.ADMIN_USERNAME || 'admin'
-      const fallbackPassword = process.env.ADMIN_PASSWORD || 'lish2025'
-
-      if (username !== fallbackUsername || password !== fallbackPassword) {
-        return res.status(401).json({
-          error: 'Invalid credentials'
-        })
-      }
-
-      // Generate JWT token for fallback user
-      const token = generateToken({
-        userId: 'fallback-admin',
-        username: fallbackUsername,
-        role: 'admin'
-      })
-
-      console.log(`Fallback admin login successful: ${username}`)
-
-      return res.status(200).json({
-        success: true,
-        token,
-        user: {
-          id: 'fallback-admin',
-          username: fallbackUsername,
-          fullName: 'System Administrator',
-          email: 'admin@lishailabs.com',
-          role: 'admin'
-        }
+      return res.status(500).json({
+        error: 'Database connection failed. Please contact system administrator.'
       })
     }
 

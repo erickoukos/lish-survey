@@ -20,6 +20,7 @@
     "db:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",
     "setup:admin": "node scripts/setup-admin.js",
+    "setup:secure-admin": "node scripts/setup-secure-admin.js",
     "test": "jest",
     "test:api": "jest --testPathPattern=api",
     "test:watch": "jest --watch",
