@@ -1,5 +1,6 @@
 import React from 'react'
 import { Calendar, Clock, Users, AlertCircle } from 'lucide-react'
+import CountdownTimer from './CountdownTimer'
 
 interface SurveyUnavailableProps {
   reason: 'not_started' | 'ended' | 'inactive'
@@ -70,6 +71,16 @@ const SurveyUnavailable: React.FC<SurveyUnavailableProps> = ({
           <p className={`text-lg ${messageInfo.textColor} mb-8 leading-relaxed`}>
             {messageInfo.message}
           </p>
+
+          {/* Show countdown timer for not started surveys */}
+          {reason === 'not_started' && endDate && (
+            <div className="mb-8">
+              <CountdownTimer 
+                endDate={endDate} 
+                className="max-w-lg mx-auto"
+              />
+            </div>
+          )}
 
           {(startDate || endDate) && (
             <div className={`${messageInfo.bgColor} rounded-lg p-6 mb-6`}>

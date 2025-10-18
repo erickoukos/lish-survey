@@ -1,6 +1,15 @@
 import React from 'react'
+import CountdownTimer from './CountdownTimer'
 
-const Introduction: React.FC = () => {
+interface IntroductionProps {
+  surveyConfig?: {
+    endDate: string
+    startDate: string
+    isActive: boolean
+  } | null
+}
+
+const Introduction: React.FC<IntroductionProps> = ({ surveyConfig }) => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-6 sm:mb-8">
@@ -20,6 +29,16 @@ const Introduction: React.FC = () => {
         <p className="text-base sm:text-lg text-secondary-600 mb-6 sm:mb-8">
           Policy Awareness & Training Needs Assessment
         </p>
+        
+        {/* Countdown Timer */}
+        {surveyConfig && surveyConfig.isActive && (
+          <div className="mb-6 sm:mb-8">
+            <CountdownTimer 
+              endDate={surveyConfig.endDate} 
+              className="max-w-2xl mx-auto"
+            />
+          </div>
+        )}
       </div>
 
       <div className="card">

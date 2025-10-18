@@ -447,7 +447,7 @@ const SurveyForm: React.FC = () => {
   const renderSection = () => {
     switch (currentSection) {
       case 0:
-        return <Introduction />
+        return <Introduction surveyConfig={surveyConfig} />
       case 1:
         return <SectionA form={form} />
       case 2:
